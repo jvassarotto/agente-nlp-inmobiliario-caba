@@ -42,17 +42,34 @@ SEP = "=" * 78
 # Presentacion
 # --------------------------------------------------------------------------
 
+def contexto(texto: str, frase: str, ancho: int = 34) -> str:
+    """Devuelve la frase con un poco de texto alrededor, para ubicarla rapido."""
+    pos = texto.lower().find(frase.lower())
+    if pos < 0:
+        return "(no se encuentra en el texto)"
+    ini = max(0, pos - ancho)
+    fin = min(len(texto), pos + len(frase) + ancho)
+    izq = ("..." if ini > 0 else "") + texto[ini:pos]
+    der = texto[pos + len(frase):fin] + ("..." if fin < len(texto) else "")
+    return f"{izq}[{texto[pos:pos + len(frase)]}]{der}".replace("\n", " ")
+
+
 def mostrar(rec: dict, i: int, total: int, ents: list[dict]) -> None:
     print("\n" + SEP)
     print(f"  Aviso {i + 1} de {total}    (id: {rec.get('id', '?')})")
     print(SEP)
+    # Se muestra el texto COMPLETO. Truncarlo seria peligroso: habria entidades
+    # etiquetadas en la parte no visible, y el revisor podria borrarlas creyendo
+    # que estan inventadas.
     texto = rec.get("text", "")
-    print(texto[:900] + ("..." if len(texto) > 900 else ""))
+    print(texto)
+    print(f"\n  [{len(texto)} caracteres — este es el texto completo que se anoto]")
 
-    print("\n  ENTIDADES propuestas por el LLM:")
+    print("\n  ENTIDADES propuestas por el LLM (con su contexto):")
     if ents:
         for n, e in enumerate(ents, 1):
             print(f"    {n:2d}. {e['type']:12s} -> {e['text']}")
+            print(f"        {contexto(texto, e['text'])}")
     else:
         print("     (ninguna)")
 
