@@ -371,11 +371,20 @@ dos son intercambiables.
 
 ## 9. Troubleshooting
 
-**`CUDA out of memory`** (GTX 1650, 4 GB) — en `configs/config.yaml`:
-1. Bajar `batch_size` a `4` y subir `grad_accum` a `4` (mantiene el batch efectivo).
-2. Bajar `max_length` (NER `160`, clasificación `128`).
-3. Confirmar `fp16: true`.
-4. Cerrar Ollama mientras entrenás: compite por la misma VRAM.
+**`CUDA out of memory`** (GTX 1650, 4 GB) — en orden de probabilidad:
+
+1. **Descargar el modelo de Ollama.** Es la causa más común y la menos evidente: Ollama deja su
+   modelo residente en VRAM varios minutos después de usarlo, ocupando ~2,5 GB de los 4 GB. No
+   alcanza con cerrar la terminal.
+   ```bash
+   ollama stop llama3.2:3b-instruct-q4_K_M
+   nvidia-smi   # confirmar que bajó a ~500 MiB antes de entrenar
+   ```
+2. Bajar `batch_size` a `2` y subir `grad_accum` a `8` (mantiene el batch efectivo).
+3. Bajar `max_length`. Con *chunking* esto **no** pierde texto: sólo achica la ventana, y el aviso
+   se sigue leyendo entero en más pasadas.
+4. Confirmar `fp16: true`.
+5. Si el error menciona fragmentación: `set PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`.
 
 **Disco lleno durante el entrenamiento.** Cada checkpoint incluye el estado del optimizador
 (~1,3 GB). Por eso `save_total_limit=1`. Si aun así falta espacio, bajá `epochs` o cambiá `out_dir`
