@@ -11,9 +11,19 @@ set -e
 cd "$(dirname "$0")/.."
 
 TRAIN_ARGS=""
+EVAL_TAG="sintetico"
 if [ "$1" = "--quick" ]; then
-  TRAIN_ARGS="--epochs 1 --max_train 200"
-  echo "=== MODO RAPIDO: 1 epoch sobre 200 ejemplos ==="
+  TRAIN_ARGS="--epochs 3 --max_train 300"
+  # Tag propio para NO pisar los resultados reales versionados en reports/.
+  EVAL_TAG="quick"
+  echo "============================================================"
+  echo " MODO RAPIDO: 3 epochs sobre 300 ejemplos."
+  echo " Sirve para verificar que el pipeline corre de punta a punta."
+  echo " Las metricas que salgan de aca NO son los resultados del"
+  echo " trabajo: con tan pocos datos el modelo apenas aprende."
+  echo " Los resultados reales estan en reports/ner_sintetico.md,"
+  echo " cls_sintetico.md, ner_real.md y cls_real.md."
+  echo "============================================================"
 else
   echo "=== MODO COMPLETO: segun configs/config.yaml ==="
 fi
@@ -31,8 +41,8 @@ echo "[4/6] Fine-tuning clasificacion (BETO)..."
 python -m src.models.train_classifier $TRAIN_ARGS
 
 echo "[5/6] Evaluacion detallada..."
-python -m src.models.evaluate --task ner --model_dir models/ner-beto
-python -m src.models.evaluate --task cls --model_dir models/cls-beto
+python -m src.models.evaluate --task ner --model_dir models/ner-beto --tag "$EVAL_TAG"
+python -m src.models.evaluate --task cls --model_dir models/cls-beto --tag "$EVAL_TAG"
 
 echo "[6/6] Robustez del parser ante cambios de layout..."
 python -m src.agent.robustness
