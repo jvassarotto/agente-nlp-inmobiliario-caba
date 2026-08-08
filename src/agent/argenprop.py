@@ -162,8 +162,13 @@ def parse_card(node) -> dict:
     }
 
 
-def parse_listings(html: str) -> list[dict]:
-    """Devuelve los avisos de una pagina de listado."""
+def parse_listings_con_conteo(html: str) -> tuple[int, list[dict]]:
+    """Devuelve (tarjetas detectadas, avisos extraidos con exito).
+
+    Los dos numeros hacen falta para la metrica del agente: la tasa de exito es
+    extraidos / detectados. Una tarjeta detectada pero sin descripcion usable
+    cuenta como fallo de extraccion.
+    """
     soup = BeautifulSoup(html, "lxml")
     nodes = soup.select(".listing__item")
     if not nodes:
@@ -173,4 +178,9 @@ def parse_listings(html: str) -> list[dict]:
         rec = parse_card(n)
         if rec["description"] and rec["url"]:
             out.append(rec)
-    return out
+    return len(nodes), out
+
+
+def parse_listings(html: str) -> list[dict]:
+    """Devuelve los avisos de una pagina de listado."""
+    return parse_listings_con_conteo(html)[1]

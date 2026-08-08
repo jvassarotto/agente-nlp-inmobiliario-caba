@@ -1,26 +1,34 @@
 {
-  "started_at": "2026-08-08T15:34:37.069807+00:00",
+  "started_at": "2026-08-08T15:54:53.843323+00:00",
   "mode": "argenprop",
-  "finished_at": "2026-08-08T15:34:43.657880+00:00",
+  "finished_at": "2026-08-08T16:11:49.171755+00:00",
   "summary": {
-    "pages_visited": 22,
-    "listings_detected": 40,
+    "pages_visited": 8,
+    "listings_detected": 80,
     "listings_extracted": 40,
-    "extraction_success_rate": 1.0,
-    "worst_page_success_rate": 1.0,
+    "extraction_success_rate": 0.5,
+    "worst_page_success_rate": 0.0,
     "errors": 0
   },
   "pages": [
     {
       "page": "palermo-p1",
       "detected": 20,
-      "extracted": 20,
+      "extracted": 0,
       "failed": 0,
-      "success_rate": 1.0,
+      "success_rate": 0.0,
       "failed_urls": []
     },
     {
       "page": "palermo-p2",
+      "detected": 20,
+      "extracted": 0,
+      "failed": 0,
+      "success_rate": 0.0,
+      "failed_urls": []
+    },
+    {
+      "page": "palermo-p3",
       "detected": 20,
       "extracted": 20,
       "failed": 0,
@@ -28,7 +36,15 @@
       "failed_urls": []
     },
     {
-      "page": "palermo-p3",
+      "page": "palermo-p4",
+      "detected": 20,
+      "extracted": 20,
+      "failed": 0,
+      "success_rate": 1.0,
+      "failed_urls": []
+    },
+    {
+      "page": "palermo-p5",
       "detected": 0,
       "extracted": 0,
       "failed": 0,
@@ -53,134 +69,6 @@
     },
     {
       "page": "recoleta-p1",
-      "detected": 0,
-      "extracted": 0,
-      "failed": 0,
-      "success_rate": null,
-      "failed_urls": []
-    },
-    {
-      "page": "almagro-p1",
-      "detected": 0,
-      "extracted": 0,
-      "failed": 0,
-      "success_rate": null,
-      "failed_urls": []
-    },
-    {
-      "page": "villa-urquiza-p1",
-      "detected": 0,
-      "extracted": 0,
-      "failed": 0,
-      "success_rate": null,
-      "failed_urls": []
-    },
-    {
-      "page": "nunez-p1",
-      "detected": 0,
-      "extracted": 0,
-      "failed": 0,
-      "success_rate": null,
-      "failed_urls": []
-    },
-    {
-      "page": "flores-p1",
-      "detected": 0,
-      "extracted": 0,
-      "failed": 0,
-      "success_rate": null,
-      "failed_urls": []
-    },
-    {
-      "page": "villa-crespo-p1",
-      "detected": 0,
-      "extracted": 0,
-      "failed": 0,
-      "success_rate": null,
-      "failed_urls": []
-    },
-    {
-      "page": "colegiales-p1",
-      "detected": 0,
-      "extracted": 0,
-      "failed": 0,
-      "success_rate": null,
-      "failed_urls": []
-    },
-    {
-      "page": "balvanera-p1",
-      "detected": 0,
-      "extracted": 0,
-      "failed": 0,
-      "success_rate": null,
-      "failed_urls": []
-    },
-    {
-      "page": "barrio-norte-p1",
-      "detected": 0,
-      "extracted": 0,
-      "failed": 0,
-      "success_rate": null,
-      "failed_urls": []
-    },
-    {
-      "page": "saavedra-p1",
-      "detected": 0,
-      "extracted": 0,
-      "failed": 0,
-      "success_rate": null,
-      "failed_urls": []
-    },
-    {
-      "page": "san-cristobal-p1",
-      "detected": 0,
-      "extracted": 0,
-      "failed": 0,
-      "success_rate": null,
-      "failed_urls": []
-    },
-    {
-      "page": "san-telmo-p1",
-      "detected": 0,
-      "extracted": 0,
-      "failed": 0,
-      "success_rate": null,
-      "failed_urls": []
-    },
-    {
-      "page": "villa-devoto-p1",
-      "detected": 0,
-      "extracted": 0,
-      "failed": 0,
-      "success_rate": null,
-      "failed_urls": []
-    },
-    {
-      "page": "villa-del-parque-p1",
-      "detected": 0,
-      "extracted": 0,
-      "failed": 0,
-      "success_rate": null,
-      "failed_urls": []
-    },
-    {
-      "page": "villa-luro-p1",
-      "detected": 0,
-      "extracted": 0,
-      "failed": 0,
-      "success_rate": null,
-      "failed_urls": []
-    },
-    {
-      "page": "monserrat-p1",
-      "detected": 0,
-      "extracted": 0,
-      "failed": 0,
-      "success_rate": null,
-      "failed_urls": []
-    },
-    {
-      "page": "puerto-madero-p1",
       "detected": 0,
       "extracted": 0,
       "failed": 0,

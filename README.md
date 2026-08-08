@@ -89,14 +89,44 @@ Todos los datos necesarios para reproducir el trabajo **están incluidos en este
 
 ## 3. Resultados
 
-Los reportes con las métricas están en [`reports/`](reports/):
+### El resultado principal: la brecha sintético → real
+
+| Modelo | Test **sintético** | Conjunto **real** |
+|---|---|---|
+| **NER** — F1 micro (seqeval) | **0.997** | **0.222** |
+| **Clasificación** — F1 macro | **0.971** | **0.176** |
+
+**Este contraste es el hallazgo central del trabajo, y no se disimula.** El F1 casi perfecto sobre
+datos sintéticos no mide qué tan bueno es el modelo: mide qué tan fácil es el test. Los avisos
+sintéticos salen de plantillas, así que el modelo aprende la plantilla en lugar del concepto.
+
+Los dos modelos fallan de manera **distinta**, y eso es informativo:
+
+- **El NER sobre-etiqueta.** Aprendió "sustantivo después de *Cuenta con*" en vez del vocabulario
+  de amenities. Sobre texto real marca cosas como `AMENITY → ventilación` o `ORIENTACION → Scalabrini`
+  (un nombre de calle).
+- **El clasificador casi no dispara.** Precisión macro 0.55 pero recall 0.16: cuando predice, suele
+  acertar, pero se pierde la mayoría. Los avisos reales expresan «dueño directo» o «urgencia» con
+  formas que el generador nunca produjo.
+
+**Cómo leer estos números.** Las etiquetas del conjunto real vienen del pre-anotador LLM
+(`llama3.2:3b`) **sin revisión humana completa**, así que miden concordancia con un anotador
+imperfecto, no con verdad de referencia. Además son sólo 65 avisos. La **magnitud de la caída** es
+sólida; los valores exactos, no.
+
+La conclusión práctica es el trabajo futuro más urgente: **anotar un conjunto real de tamaño
+razonable**. Es lo que separa este pipeline funcionando de un modelo utilizable.
+
+### Reportes
+
+Todo está en [`reports/`](reports/):
 
 | Archivo | Contenido |
 |---|---|
-| `ner_sintetico.md` | F1 por entidad (seqeval) sobre el test sintético |
-| `cls_sintetico.md` | Precisión / recall / F1 por clase y macro |
+| `ner_sintetico.md` / `ner_real.md` | F1 por entidad (seqeval), sintético y real |
+| `cls_sintetico.md` / `cls_real.md` | Precisión / recall / F1 por clase y macro |
 | `parser_robustness.json` | Retención de campos del parser ante cambios de layout |
-| `agent_metrics_*.json` | Tasa de éxito de extracción del agente |
+| `agent_metrics_*.json` | Tasa de éxito de extracción del agente, por fuente |
 
 ### Métricas: definición y justificación
 

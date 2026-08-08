@@ -52,9 +52,13 @@ def cargar_resultados() -> dict:
     return {
         "ner": _json("models/ner-beto/test_metrics.json"),
         "cls": _json("models/cls-beto/test_metrics.json"),
+        "ner_sint": _json("reports/ner_sintetico.json"),
+        "cls_sint": _json("reports/cls_sintetico.json"),
+        "ner_real": _json("reports/ner_real.json"),
+        "cls_real": _json("reports/cls_real.json"),
         "robustez": _json("reports/parser_robustness.json"),
-        "agente": (_json("reports/agent_metrics_deterministic.json")
-                   or _json("reports/agent_metrics_agent.json")),
+        "agente": (_json("reports/agent_metrics_argenprop.json")
+                   or _json("reports/agent_metrics_deterministic.json")),
     }
 
 
@@ -274,20 +278,38 @@ def construir(res: dict) -> Presentation:
            "Agente — tasa de éxito de extracción y robustez ante cambios de layout."],
           size=15)
 
-    # 7. Resultados NLP  (numeros reales)
-    ner, cls = res["ner"], res["cls"]
+    # 7. EL resultado del trabajo: la brecha sintetico -> real
+    ns, cs = res["ner_sint"], res["cls_sint"]
+    nr, cr = res["ner_real"], res["cls_real"]
     placa_metricas(
-        prs, "Resultados — capa de NLP",
-        [(fmt(ner.get("eval_f1") if ner else None), "F1 NER\n(seqeval, span completo)"),
-         (fmt(ner.get("eval_precision") if ner else None), "Precisión NER"),
-         (fmt(cls.get("eval_f1_macro") if cls else None), "F1 macro\nclasificación"),
-         (fmt(cls.get("eval_f1_micro") if cls else None), "F1 micro\nclasificación")],
-        nota=["Evaluado sobre el split de test. El detalle por entidad y por clase está en "
-              "reports/ner_sintetico.md y reports/cls_sintetico.md.",
+        prs, "Resultados — la brecha sintético → real",
+        [(fmt(ns.get("f1_micro") if ns else None), "F1 NER\nsobre sintético"),
+         (fmt(nr.get("f1_micro") if nr else None), "F1 NER\nsobre REAL"),
+         (fmt(cs.get("f1_macro") if cs else None), "F1 macro clasif.\nsobre sintético"),
+         (fmt(cr.get("f1_macro") if cr else None), "F1 macro clasif.\nsobre REAL")],
+        nota=["Este contraste es el hallazgo central, y no se disimula: un F1 casi perfecto sobre "
+              "datos sintéticos no mide qué tan bueno es el modelo, sino qué tan fácil es el test.",
               "",
-              "Los modelos se entrenan con el dataset sintético —que trae etiquetas gold por "
-              "construcción— y el conjunto real anotado se usa como evaluación externa, para "
-              "medir generalización sintético → real."])
+              "Los avisos sintéticos salen de plantillas, así que el modelo aprende la plantilla "
+              "en lugar del concepto."])
+
+    # 8. Como falla cada modelo (el analisis, no solo el numero)
+    placa(prs, "Los dos modelos fallan distinto",
+          ["EL NER SOBRE-ETIQUETA.",
+           "      Aprendió «sustantivo después de Cuenta con» en vez del vocabulario real de "
+           "amenities. Sobre texto real marca AMENITY → «ventilación», «universidades», y llega a "
+           "marcar el nombre de una calle como ORIENTACION.",
+           "",
+           "EL CLASIFICADOR CASI NO DISPARA.",
+           "      Precisión macro 0.55 pero recall 0.16: cuando predice suele acertar, pero se "
+           "pierde la mayoría. Los avisos reales expresan «dueño directo» o «urgencia» con formas "
+           "que el generador nunca produjo.",
+           "",
+           "CÓMO LEER ESTOS NÚMEROS.",
+           "      Las etiquetas del conjunto real vienen del pre-anotador LLM sin revisión humana "
+           "completa, sobre 65 avisos. Miden concordancia con un anotador imperfecto, no verdad de "
+           "referencia. La magnitud de la caída es sólida; los valores exactos, no."],
+          size=15)
 
     # 8. Resultados del agente (numeros reales)
     rob = res["robustez"]

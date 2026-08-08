@@ -1,5 +1,5 @@
 {
-  "fuente": "muestra sintetica (no hay fixtures reales)",
+  "fuente": "muestra sintetica (los fixtures guardados no tienen contenido parseable)",
   "retencion_promedio": {
     "original": 1.0,
     "sin_data_qa": 0.875,

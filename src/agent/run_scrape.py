@@ -12,9 +12,10 @@ Salida: data/raw/zonaprop_caba.jsonl (un aviso por linea, esquema Listing).
 """
 from __future__ import annotations
 import argparse
+from pathlib import Path
 
 from src.utils.config import load_config
-from src.utils.io import write_jsonl
+from src.utils.io import write_jsonl, read_jsonl
 from src.agent import browser_tools as bt
 from src.agent import metrics
 
@@ -47,18 +48,32 @@ def run_argenprop(cfg, max_listings):
 
     ac = cfg["argenprop"]
     tope = min(int(ac.get("max_pagina", ap.MAX_PAGINA)), ap.MAX_PAGINA)
-    vistos: set[str] = set()
+    # Se parte de lo ya scrapeado: cada corrida ACUMULA en vez de pisar. Como el
+    # sitio limita el ritmo, el dataset se junta a lo largo de varias corridas.
+    salida = Path(cfg["_root"]) / ac["out_path"]
+    if salida.exists():
+        previos = list(read_jsonl(salida))
+        bt.EXTRACTED.extend(previos)
+        print(f"Retomando desde {len(previos)} avisos ya scrapeados.")
+
+    vistos: set[str] = {r["url"] for r in bt.EXTRACTED if r.get("url")}
     total_detectados = 0
+    barrios_vacios = 0      # cortacircuitos: si el sitio nos corto, no insistir
 
     for barrio in ac["barrios"]:
         if len(bt.EXTRACTED) >= max_listings:
             break
+        if barrios_vacios >= 3:
+            print("\nTres barrios seguidos sin resultados: el sitio nos esta limitando.")
+            print("Se corta la corrida. Reintentar mas tarde o subir los delays.")
+            break
+        antes = len(bt.EXTRACTED)
         for pagina in range(1, tope + 1):
             if len(bt.EXTRACTED) >= max_listings:
                 break
             url = ap.build_url(barrio, pagina)
             try:
-                recs = ap.parse_listings(ap.fetch(url))
+                detectadas, recs = ap.parse_listings_con_conteo(ap.fetch_con_backoff(url))
             except Exception as e:
                 metrics.record_error(f"argenprop_{barrio}_p{pagina}", e)
                 print(f"  [{barrio} p{pagina}] ERROR: {str(e)[:90]}")
@@ -70,14 +85,19 @@ def run_argenprop(cfg, max_listings):
                     vistos.add(r["url"])
                     bt.EXTRACTED.append(r)
                     nuevos += 1
-            total_detectados += len(recs)
-            metrics.record_page(f"{barrio.split('/')[-1]}-p{pagina}", len(recs), nuevos, [])
-            print(f"  [{barrio.split('/')[-1]:20s} p{pagina:2d}] {len(recs):2d} detectados, "
-                  f"{nuevos:2d} nuevos | total {len(bt.EXTRACTED)}")
+            total_detectados += detectadas
+            # La tasa de exito mide si el PARSER logro extraer cada tarjeta
+            # detectada. Que un aviso ya estuviera de una corrida previa NO es
+            # un fallo de extraccion: `nuevos` se informa aparte.
+            metrics.record_page(f"{barrio.split('/')[-1]}-p{pagina}", detectadas, len(recs), [])
+            print(f"  [{barrio.split('/')[-1]:20s} p{pagina:2d}] {detectadas:2d} detectadas, "
+                  f"{len(recs):2d} extraidas, {nuevos:2d} nuevas | total {len(bt.EXTRACTED)}")
 
             if not recs:
-                break   # sin resultados: el barrio se agoto
+                break   # sin resultados: el barrio se agoto (o nos cortaron)
             time.sleep(random.uniform(ac["min_delay_s"], ac["max_delay_s"]))
+
+        barrios_vacios = 0 if len(bt.EXTRACTED) > antes else barrios_vacios + 1
 
     print(f"\nDetectados {total_detectados}, unicos {len(bt.EXTRACTED)}")
 

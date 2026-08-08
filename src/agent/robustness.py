@@ -100,14 +100,22 @@ def evaluate_html(html: str, url: str = SAMPLE_URL) -> dict:
 def evaluate_fixtures(root: str | Path) -> dict:
     """Evalua sobre los fixtures reales si existen; si no, sobre la muestra."""
     fixtures = sorted((Path(root) / "data" / "fixtures").glob("detail_*.html"))
-    if fixtures:
-        per_file = {}
-        for fx in fixtures:
-            per_file[fx.name] = evaluate_html(fx.read_text(encoding="utf-8", errors="ignore"))
-        fuente = f"fixtures reales ({len(fixtures)} avisos)"
+    per_file = {}
+    for fx in fixtures:
+        rep = evaluate_html(fx.read_text(encoding="utf-8", errors="ignore"))
+        # Un fixture sin NINGUN campo en el layout sano no sirve para medir
+        # robustez: no hay nada que perder. Pasa con las paginas de challenge
+        # del anti-bot, que responden 200 pero sin contenido.
+        if rep["campos_base"]:
+            per_file[fx.name] = rep
+
+    if per_file:
+        fuente = f"fixtures reales ({len(per_file)} de {len(fixtures)} utilizables)"
     else:
         per_file = {"muestra_sintetica": evaluate_html(SAMPLE_HTML)}
-        fuente = "muestra sintetica (no hay fixtures reales)"
+        fuente = ("muestra sintetica"
+                  + (" (los fixtures guardados no tienen contenido parseable)"
+                     if fixtures else " (no hay fixtures reales)"))
 
     # Promedio de retencion por variante, a traves de los archivos evaluados.
     resumen = {}
@@ -125,7 +133,8 @@ def main():
 
     print(f"Robustez del parser — fuente: {rep['fuente']}\n")
     for variante, tasa in rep["retencion_promedio"].items():
-        print(f"  {variante:24s} retencion de campos: {tasa}")
+        valor = f"{tasa:.1%}" if tasa is not None else "(sin datos)"
+        print(f"  {variante:24s} retencion de campos: {valor}")
 
     out_dir = Path(root) / "reports"
     out_dir.mkdir(parents=True, exist_ok=True)
