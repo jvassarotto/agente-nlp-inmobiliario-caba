@@ -54,16 +54,30 @@ def contexto(texto: str, frase: str, ancho: int = 34) -> str:
     return f"{izq}[{texto[pos:pos + len(frase)]}]{der}".replace("\n", " ")
 
 
-def mostrar(rec: dict, i: int, total: int, ents: list[dict]) -> None:
+def mostrar(rec: dict, i: int, total: int, ents: list[dict],
+            originales: dict | None = None) -> None:
     print("\n" + SEP)
     print(f"  Aviso {i + 1} de {total}    (id: {rec.get('id', '?')})")
     print(SEP)
-    # Se muestra el texto COMPLETO. Truncarlo seria peligroso: habria entidades
-    # etiquetadas en la parte no visible, y el revisor podria borrarlas creyendo
-    # que estan inventadas.
+    # Se muestra el texto anotado COMPLETO. Truncarlo seria peligroso: habria
+    # entidades etiquetadas en la parte no visible, y el revisor podria
+    # borrarlas creyendo que estan inventadas.
     texto = rec.get("text", "")
     print(texto)
-    print(f"\n  [{len(texto)} caracteres — este es el texto completo que se anoto]")
+    print(f"\n  {'─' * 70}")
+    print(f"  FIN DE LA PARTE ANOTADA ({len(texto)} caracteres).")
+
+    # El resto del aviso se muestra solo como contexto: no se etiqueta porque
+    # BETO, con max_length=192 sub-tokens, ni siquiera llega a leer hasta aca
+    # (lee hasta el caracter ~870 en promedio).
+    completo = (originales or {}).get(rec.get("id", ""), "")
+    if completo and len(completo) > len(texto):
+        resto = completo[len(texto):]
+        print(f"  Sigue {len(resto)} caracteres mas, SOLO COMO CONTEXTO —")
+        print(f"  no se etiquetan porque el modelo no llega a leerlos:")
+        print(f"  {'─' * 70}")
+        print(f"  {resto}")
+    print(f"  {'─' * 70}")
 
     print("\n  ENTIDADES propuestas por el LLM (con su contexto):")
     if ents:
@@ -188,6 +202,12 @@ def main():
     recs = list(read_jsonl(src))
     print(f"Cargados {len(recs)} avisos pre-anotados desde {args.input}")
 
+    # Texto original completo, para mostrarlo como contexto durante la revision.
+    originales: dict[str, str] = {}
+    crudo = root / "data/raw/real_caba.jsonl"
+    if crudo.exists():
+        originales = {r.get("id", ""): r.get("description", "") for r in read_jsonl(crudo)}
+
     if args.solo_exportar:
         exportar_evaluacion(recs, root, "etiquetas del LLM, sin revisar")
         return
@@ -222,7 +242,7 @@ def main():
 
     for i, rec in enumerate(muestra):
         ents = group_entities(list(zip(rec["tokens"], rec["ner_tags"])))
-        mostrar(rec, len(revisados), len(revisados) + len(muestra) - i, ents)
+        mostrar(rec, len(revisados), len(revisados) + len(muestra) - i, ents, originales)
 
         try:
             ents_ok, cambio_ner = pedir_correccion_ner(ents)
