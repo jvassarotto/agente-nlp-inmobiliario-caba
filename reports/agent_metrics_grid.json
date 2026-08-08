@@ -1,0 +1,82 @@
+{
+  "started_at": "2026-08-08T15:02:09.830101+00:00",
+  "mode": "grid",
+  "finished_at": "2026-08-08T15:04:19.042295+00:00",
+  "summary": {
+    "pages_visited": 1,
+    "listings_detected": 30,
+    "listings_extracted": 25,
+    "extraction_success_rate": 0.8333,
+    "worst_page_success_rate": 0.8333,
+    "errors": 8
+  },
+  "pages": [
+    {
+      "page": "departamentos-venta-palermo",
+      "detected": 30,
+      "extracted": 25,
+      "failed": 0,
+      "success_rate": 0.8333,
+      "failed_urls": []
+    }
+  ],
+  "errors": [
+    {
+      "stage": "sin_avisos_departamentos-venta-palermo-1-ambiente",
+      "detail": "posible bloqueo anti-bot en https://www.zonaprop.com.ar/departamentos-venta-palermo-1-ambiente.html",
+      "at": "2026-08-08T15:02:41.921222+00:00"
+    },
+    {
+      "stage": "sin_avisos_departamentos-venta-palermo-2-ambientes",
+      "detail": "posible bloqueo anti-bot en https://www.zonaprop.com.ar/departamentos-venta-palermo-2-ambientes.html",
+      "at": "2026-08-08T15:02:59.946072+00:00"
+    },
+    {
+      "stage": "sin_avisos_departamentos-venta-palermo-3-ambientes",
+      "detail": "posible bloqueo anti-bot en https://www.zonaprop.com.ar/departamentos-venta-palermo-3-ambientes.html",
+      "at": "2026-08-08T15:03:11.215811+00:00"
+    },
+    {
+      "stage": "sin_avisos_departamentos-venta-palermo-4-ambientes",
+      "detail": "posible bloqueo anti-bot en https://www.zonaprop.com.ar/departamentos-venta-palermo-4-ambientes.html",
+      "at": "2026-08-08T15:03:31.254779+00:00"
+    },
+    {
+      "stage": "sin_avisos_departamentos-venta-belgrano",
+      "detail": "posible bloqueo anti-bot en https://www.zonaprop.com.ar/departamentos-venta-belgrano.html",
+      "at": "2026-08-08T15:03:41.338716+00:00"
+    },
+    {
+      "stage": "sin_avisos_departamentos-venta-belgrano-1-ambiente",
+      "detail": "posible bloqueo anti-bot en https://www.zonaprop.com.ar/departamentos-venta-belgrano-1-ambiente.html",
+      "at": "2026-08-08T15:03:53.772362+00:00"
+    },
+    {
+      "stage": "sin_avisos_departamentos-venta-belgrano-2-ambientes",
+      "detail": "posible bloqueo anti-bot en https://www.zonaprop.com.ar/departamentos-venta-belgrano-2-ambientes.html",
+      "at": "2026-08-08T15:04:04.766971+00:00"
+    },
+    {
+      "stage": "sin_avisos_departamentos-venta-belgrano-3-ambientes",
+      "detail": "posible bloqueo anti-bot en https://www.zonaprop.com.ar/departamentos-venta-belgrano-3-ambientes.html",
+      "at": "2026-08-08T15:04:18.900007+00:00"
+    }
+  ],
+  "fixtures": [
+    {
+      "kind": "search",
+      "file": "search_00_www_zonaprop_com_ar_departamentos_venta_palermo_html.html",
+      "url": "https://www.zonaprop.com.ar/departamentos-venta-palermo.html"
+    },
+    {
+      "kind": "search",
+      "file": "search_01_www_zonaprop_com_ar_departamentos_venta_palermo_1_ambiente_h.html",
+      "url": "https://www.zonaprop.com.ar/departamentos-venta-palermo-1-ambiente.html"
+    },
+    {
+      "kind": "search",
+      "file": "search_02_www_zonaprop_com_ar_departamentos_venta_palermo_2_ambientes.html",
+      "url": "https://www.zonaprop.com.ar/departamentos-venta-palermo-2-ambientes.html"
+    }
+  ]
+}

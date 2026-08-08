@@ -33,31 +33,94 @@ scrape:
   #   "detail" -> visitando cada pagina de detalle. Da mas campos (antiguedad),
   #               pero ZonaProp la protege con Cloudflare y suele fallar.
   extract_from: "cards"
+  # --- Grilla de busquedas (modo `--mode grid`) ---
+  #
   # Cloudflare bloquea las URLs paginadas (-pagina-N.html) a partir de la 2,
   # pero la PRIMERA pagina de cada busqueda responde bien. En vez de insistir
-  # contra el bloqueo, se recorren busquedas por barrio: cada una es una
-  # consulta distinta, visitada una sola vez.
-  barrio_paths:
-    - "/departamentos-venta-palermo.html"
-    - "/departamentos-venta-belgrano.html"
-    - "/departamentos-venta-caballito.html"
-    - "/departamentos-venta-recoleta.html"
-    - "/departamentos-venta-villa-urquiza.html"
-    - "/departamentos-venta-almagro.html"
-    - "/departamentos-venta-nunez.html"
-    - "/departamentos-venta-flores.html"
-    - "/departamentos-venta-villa-crespo.html"
-    - "/departamentos-venta-colegiales.html"
-    - "/departamentos-venta-san-telmo.html"
-    - "/departamentos-venta-barracas.html"
+  # contra el bloqueo, se recorren busquedas DISTINTAS: cada una es una consulta
+  # normal, visitada una sola vez.
+  #
+  # Los slugs NO estan inventados: son los que el propio portal publica como
+  # links de filtro en la pagina de listado (data-qa="option-link").
+  # Combinar barrio x ambientes da celdas disjuntas, asi que casi no hay
+  # solapamiento entre busquedas (igual se deduplica por URL).
+  barrios:
+    - palermo
+    - belgrano
+    - caballito
+    - recoleta
+    - villa-urquiza
+    - nunez
+    - almagro
+    - villa-crespo
+    - balvanera
+    - flores
+    - puerto-madero
+    - barrio-norte
+    - villa-devoto
+    - colegiales
+    - saavedra
+    - san-cristobal
+    - villa-del-parque
+    - barracas
+    - san-telmo
+    - monserrat
+  # Sufijos de ambientes. La cadena vacia significa "sin filtro de ambientes".
+  ambientes:
+    - ""
+    - "-1-ambiente"
+    - "-2-ambientes"
+    - "-3-ambientes"
+    - "-4-ambientes"
   headless: false          # false ayuda a pasar anti-bot en la primera corrida
   # Rate-limit cortes. Con "cards" cada request rinde 25-30 avisos, asi que se
   # puede esperar bastante entre paginas sin que la corrida se vuelva eterna.
   # Delays cortos disparan el challenge de Cloudflare a partir de la pagina 2.
-  min_delay_s: 20.0
-  max_delay_s: 40.0
+  min_delay_s: 10.0
+  max_delay_s: 20.0
   timeout_ms: 45000
   out_path: "data/raw/zonaprop_caba.jsonl"
+
+# --- Fuente alternativa: Argenprop ---
+# ZonaProp resulto inviable para juntar volumen: Cloudflare desafia el navegador
+# automatizado desde la segunda request de cada sesion, y se descarto evadirlo.
+# Argenprop, en cambio, HABILITA el acceso en su robots.txt (Allow hasta
+# pagina-10 de cada busqueda), no necesita navegador y sus tarjetas traen
+# descripcion completa + antiguedad.
+argenprop:
+  base_url: "https://www.argenprop.com"
+  # Rutas publicadas por el propio sitio como links de filtro por barrio.
+  barrios:
+    - "/departamentos/venta/palermo"
+    - "/departamentos/venta/belgrano"
+    - "/departamentos/venta/caballito"
+    - "/departamentos/venta/recoleta"
+    - "/departamentos/venta/almagro"
+    - "/departamentos/venta/villa-urquiza"
+    - "/departamentos/venta/nunez"
+    - "/departamentos/venta/flores"
+    - "/departamentos/venta/villa-crespo"
+    - "/departamentos/venta/colegiales"
+    - "/departamentos/venta/balvanera"
+    - "/departamentos/venta/barrio-norte"
+    - "/departamentos/venta/saavedra"
+    - "/departamentos/venta/san-cristobal"
+    - "/departamentos/venta/san-telmo"
+    - "/departamentos/venta/villa-devoto"
+    - "/departamentos/venta/villa-del-parque"
+    - "/departamentos/venta/villa-luro"
+    - "/departamentos/venta/monserrat"
+    - "/departamentos/venta/puerto-madero"
+  # TOPE DURO de robots.txt: Allow hasta ?pagina-10, Disallow de ahi en mas.
+  # El codigo lo valida (src/agent/argenprop.py -> MAX_PAGINA). No subirlo.
+  max_pagina: 10
+  # ATENCION: con delays de 2-5 s el sitio corta a las ~3 requests y devuelve
+  # HTTP 202 con cuerpo VACIO (throttling por IP), y el corte persiste varios
+  # minutos. 30-60 s es el ritmo que corresponde: una pagina rinde 20 avisos,
+  # asi que 1.000 avisos son ~50 requests, poco mas de media hora.
+  min_delay_s: 30.0
+  max_delay_s: 60.0
+  out_path: "data/raw/argenprop_caba.jsonl"
 
 # --- Dataset sintetico (demo / testeo del pipeline sin scrape real) ---
 synthetic:

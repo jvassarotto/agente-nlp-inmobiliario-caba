@@ -163,7 +163,8 @@ Desde la raíz del repo, con el entorno activado. Los parámetros salen de `conf
 
 ```bash
 # 1. Construir el dataset real con el agente
-python -m src.agent.run_scrape --mode deterministic --max-listings 300   # robusto, para corridas largas
+python -m src.agent.run_scrape --mode grid --max-listings 2500           # RECOMENDADO (ver abajo)
+python -m src.agent.run_scrape --mode deterministic --max-listings 300   # paginacion clasica
 python -m src.agent.run_scrape --mode agent --max-pages 3                # patron ReAct: el LLM orquesta
 
 # 2. Anotacion semiautomatica (el LLM pre-anota; despues se revisa a mano)
@@ -188,8 +189,70 @@ python -m src.models.evaluate --task ner --model_dir models/ner-beto \
 python -m src.models.infer --text "Depto a estrenar con pileta y cochera. Dueno directo."
 ```
 
-Los dos modos de scrape comparten las mismas *tools* y el mismo *parser*: el **modo agente**
-demuestra el patrón ReAct de la propuesta, el **determinístico** es más robusto para corridas largas.
+Los tres modos comparten las mismas *tools* y el mismo *parser*.
+
+### El anti-bot: qué se probó y qué se aprendió
+
+Este fue el hallazgo más concreto sobre la viabilidad de la "adquisición autónoma" que plantea la
+propuesta. Se probaron tres estrategias, en este orden:
+
+| Estrategia | Resultado |
+|---|---|
+| **1. Visitar la página de detalle de cada aviso** | Bloqueado. Devuelve un *challenge* de Cloudflare ("Un momento…") en lugar del contenido |
+| **2. Extraer desde las tarjetas del listado** | **Funciona.** Las tarjetas ya traen la descripción completa (1.500-3.500 caracteres). Además una request rinde 25-30 avisos en vez de uno |
+| **3. Recorrer búsquedas distintas (barrio × ambientes) en lugar de paginar** | Bloqueado, pero **no por lo que parecía** |
+
+Sobre el punto 3, el detalle importa. Primero se creyó que el bloqueo era de las **URLs paginadas**
+(`-pagina-2.html`), y que usar búsquedas distintas lo evitaría. La evidencia lo desmintió:
+
+- `/departamentos-venta-palermo-2-ambientes.html` devolvió **30 avisos** en una prueba aislada.
+- La **misma URL**, dentro de la corrida de la grilla, devolvió **0**.
+
+Es decir: **el bloqueo es por sesión, no por URL**. Cloudflare detecta el navegador automatizado y
+lo desafía a partir de la segunda request, sin importar a qué página apunte. Subir los delays a
+20-40 segundos tampoco cambió nada, lo que confirma que no es un límite de tasa sino de detección.
+
+**Dónde se puso el límite.** Seguir habría requerido renovar sesión o *fingerprint* en cada request
+—proxies rotativos, plugins *stealth*, resolución de CAPTCHA—, y eso ya no es consultar el sitio de
+otra manera sino **evadir un control de seguridad**. Contradice el uso académico que declara este
+trabajo, así que no se hizo.
+
+**Consecuencia para el dataset:** en la práctica se obtiene una tanda de ~25-30 avisos reales por
+sesión de navegador. Muy lejos de los 8.000-15.000 de la propuesta.
+
+### La solución: cambiar de fuente, no de método
+
+Ante ese límite había dos caminos: **evadir la protección** (proxies rotativos, *fingerprints*
+falsos, resolución de CAPTCHA) o **buscar una fuente que permita el acceso**. Se tomó el segundo.
+
+**Argenprop habilita explícitamente el acceso automatizado en su `robots.txt`:**
+
+```
+Allow: /*?pagina-1$
+...
+Allow: /*?pagina-10$
+Disallow: /*?pagina-
+```
+
+Las páginas 1 a 10 de cada búsqueda están permitidas; de la 11 en adelante, no. **Ese tope se
+valida en el código**, no sólo en la documentación (`src/agent/argenprop.py → MAX_PAGINA`).
+
+Ventajas adicionales de la fuente:
+
+| | ZonaProp | Argenprop |
+|---|---|---|
+| Necesita navegador | Sí (Playwright) | No, HTTP directo |
+| Avisos por request | 25-30 | 20 |
+| Requests por sesión | **1** (después bloquea) | Sin bloqueo |
+| Antigüedad en la tarjeta | No | **Sí** |
+| Acceso automatizado | Bloqueado | **Permitido por robots.txt** |
+
+La arquitectura del agente no cambió: siguen siendo las mismas *tools* y el mismo patrón de
+parseo resiliente; lo único que cambió es la puerta por la que entra.
+
+```bash
+python -m src.agent.run_scrape --mode argenprop --max-listings 1000
+```
 
 ---
 
