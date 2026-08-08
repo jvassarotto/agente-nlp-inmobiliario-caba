@@ -83,6 +83,11 @@ ner:
   lr: 3.0e-5
   weight_decay: 0.01
   fp16: true               # imprescindible en 4GB
+  # Guardar un checkpoint por epoch para quedarse con el mejor cuesta ~2.6 GB de
+  # disco transitorio (el estado del optimizador pesa mas que el modelo).
+  # En false se entrena igual y se evalua en cada epoch, pero solo se guarda el
+  # modelo final. Poner en true si sobra disco.
+  save_best: false
   out_dir: "models/ner-beto"
 
 # --- Fine-tuning clasificacion (sequence classification) ---

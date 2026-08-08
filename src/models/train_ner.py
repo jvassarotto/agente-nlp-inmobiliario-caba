@@ -111,6 +111,7 @@ def main():
         id2label=ID2LABEL, label2id=LABEL2ID)
 
     use_fp16 = bool(nc.get("fp16")) and torch.cuda.is_available()
+    guardar_mejor = bool(nc.get("save_best", False))
     targs = TrainingArguments(
         output_dir=args.out_dir,
         num_train_epochs=args.epochs,
@@ -121,12 +122,15 @@ def main():
         weight_decay=nc["weight_decay"],
         fp16=use_fp16,
         eval_strategy="epoch",
-        save_strategy="epoch",
-        # Sin este limite se acumula un checkpoint por epoch, y cada uno incluye
-        # el estado del optimizador (~1.3 GB para BETO): 5 epochs llenaban el disco.
-        save_total_limit=1,
-        load_best_model_at_end=True,
-        metric_for_best_model="f1",
+        # Cada checkpoint intermedio incluye el estado del optimizador (~1.3 GB
+        # para BETO). Con save_best=true se conservan dos a la vez (el mejor y
+        # el ultimo), lo que llena un disco chico: por eso viene apagado.
+        # Igual se evalua en cada epoch, asi que se ve la curva completa; lo que
+        # se pierde es la seleccion automatica del mejor epoch.
+        save_strategy="epoch" if guardar_mejor else "no",
+        save_total_limit=1 if guardar_mejor else None,
+        load_best_model_at_end=guardar_mejor,
+        metric_for_best_model="f1" if guardar_mejor else None,
         logging_steps=25,
         report_to=[],
         seed=cfg["project"]["seed"],

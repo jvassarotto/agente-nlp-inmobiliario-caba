@@ -72,6 +72,11 @@ def main():
     ap.add_argument("--config", default=None)
     ap.add_argument("--input", default="data/raw/zonaprop_caba.jsonl")
     ap.add_argument("--limit", type=int, default=None)
+    # Las descripciones reales llegan a 8.000 caracteres, pero el fine-tuning
+    # trunca a `max_length` tokens igual. Recortar acelera mucho la anotacion
+    # (el LLM local es lento con contextos largos) sin perder informacion util.
+    ap.add_argument("--max-chars", type=int, default=1200,
+                    help="recorta la descripcion antes de mandarla al LLM (0 = sin limite)")
     args = ap.parse_args()
 
     cfg = load_config(args.config)
@@ -85,6 +90,8 @@ def main():
         desc = r.get("description") or r.get("text") or ""
         if not desc.strip():
             continue
+        if args.max_chars:
+            desc = desc[:args.max_chars]
         ann = annotate_one(llm, desc)
         ann["id"] = r.get("id", "")
         out.append(ann)

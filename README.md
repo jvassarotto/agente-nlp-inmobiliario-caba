@@ -246,17 +246,26 @@ dos son intercambiables.
 
 ## 8. Limitaciones (documentadas explícitamente)
 
-- **Volumen del scrape.** La propuesta apuntaba a 8.000–15.000 avisos; se trabajó con un volumen
-  mucho menor. El objetivo fue demostrar que la arquitectura funciona, no maximizar el dataset.
+- **Anti-bot: el límite real del scrape.** ZonaProp protege el sitio con Cloudflare. En la práctica:
+  - Las **páginas de detalle** de cada aviso devuelven un *challenge* ("Un momento…") en lugar del
+    contenido. Por eso la extracción se hace **desde las tarjetas del listado**, que ya traen la
+    descripción completa. Además de esquivar el bloqueo, es más cortés: una request rinde 25-30
+    avisos en vez de uno.
+  - Las **URLs paginadas** (`-pagina-2.html` en adelante) también quedan bloqueadas, incluso
+    subiendo los delays a 20-40 segundos. No se insistió contra el bloqueo.
+  - Resultado: el volumen quedó muy por debajo de los 8.000-15.000 avisos de la propuesta. El
+    objetivo fue demostrar que la arquitectura funciona, no maximizar el dataset.
 - **Entrenamiento sobre sintético.** Los modelos se entrenan con el generador y el conjunto real
   anotado se usa como **evaluación externa**, midiendo generalización sintético → real.
+  Ver la sección "Generalización sintético → real" del notebook: el F1 perfecto sobre datos
+  sintéticos **no** se traslada a texto real, y ese es un resultado del trabajo, no un accidente.
 - **Anotación semiautomática.** El pre-anotador es un LLM chico (`llama3.2:3b`, por la restricción
   de 4 GB de VRAM); sus errores se propagan, y por eso la revisión manual del subconjunto.
-- **Anti-bot.** ZonaProp emplea DataDome/Cloudflare. Se maneja con navegador real, `user-agent` y
-  `locale` de escritorio, y **rate-limiting cortés** (`min_delay_s`/`max_delay_s`). Aun así la tasa
-  de éxito varía, y los selectores del parser pueden requerir ajuste (por eso los *fallbacks*).
+- **Longitud del texto.** `max_length` es 192 tokens: las descripciones reales (mediana ~1.600
+  caracteres) se truncan. Subirlo no entra en 4 GB de VRAM con este batch.
 - **Términos de uso.** Scraping con fines **académicos**, a ritmo razonable y sin redistribuir el
-  contenido del portal.
+  contenido del portal: el repositorio incluye una muestra acotada de datos ya estructurados, no
+  volcados de páginas.
 
 ---
 

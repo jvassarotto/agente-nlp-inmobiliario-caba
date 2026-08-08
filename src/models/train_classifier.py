@@ -100,6 +100,7 @@ def main():
         id2label=ID2CLASS, label2id=CLASS2ID)
 
     use_fp16 = bool(cc.get("fp16")) and torch.cuda.is_available()
+    guardar_mejor = bool(cc.get("save_best", False))
     targs = TrainingArguments(
         output_dir=args.out_dir,
         num_train_epochs=args.epochs,
@@ -110,11 +111,11 @@ def main():
         weight_decay=cc["weight_decay"],
         fp16=use_fp16,
         eval_strategy="epoch",
-        save_strategy="epoch",
-        # Ver nota en train_ner.py: evita acumular un checkpoint por epoch.
-        save_total_limit=1,
-        load_best_model_at_end=True,
-        metric_for_best_model="f1_macro",
+        # Ver nota en train_ner.py: los checkpoints intermedios llenan el disco.
+        save_strategy="epoch" if guardar_mejor else "no",
+        save_total_limit=1 if guardar_mejor else None,
+        load_best_model_at_end=guardar_mejor,
+        metric_for_best_model="f1_macro" if guardar_mejor else None,
         logging_steps=25,
         report_to=[],
         seed=cfg["project"]["seed"],
