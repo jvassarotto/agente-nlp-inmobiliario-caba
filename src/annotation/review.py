@@ -227,10 +227,14 @@ def main():
         perdidas = [e for e in ents_ok
                     if (e["type"], e["text"].lower()) not in quedaron]
         if perdidas:
-            print("  AVISO: estas entidades no se pudieron marcar porque el texto exacto")
-            print("         no aparece en el aviso (revisa tildes y mayusculas):")
+            print("\n  AVISO: estas entidades no quedaron marcadas:")
             for e in perdidas:
                 print(f"           {e['type']} -> {e['text']}")
+            print("         Puede ser por dos motivos:")
+            print("          a) el texto no aparece TAL CUAL en el aviso (revisa tildes);")
+            print("          b) otra entidad mas larga se superpone y gana — por ejemplo, si")
+            print("             agregas 'al frente' se come al 'frente' que ya estaba.")
+            print("         Si es el caso (b), esta todo bien: quedo la version mas completa.")
 
         conteo["borradas"] += max(0, len(ents) - len([e for e in ents_ok if e in ents]))
         conteo["agregadas"] += len([e for e in ents_ok if e not in ents])
