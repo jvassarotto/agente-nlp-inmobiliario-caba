@@ -1,0 +1,83 @@
+{
+  "fuente": "muestra sintetica (no hay fixtures reales)",
+  "retencion_promedio": {
+    "original": 1.0,
+    "sin_data_qa": 0.875,
+    "renombrado_a_clases": 1.0,
+    "sin_ningun_atributo": 0.875
+  },
+  "detalle": {
+    "muestra_sintetica": {
+      "campos_base": [
+        "price_amount",
+        "rooms",
+        "bedrooms",
+        "bathrooms",
+        "age_years",
+        "expenses_amount",
+        "neighborhood",
+        "description"
+      ],
+      "variantes": {
+        "original": {
+          "campos_recuperados": [
+            "price_amount",
+            "rooms",
+            "bedrooms",
+            "bathrooms",
+            "age_years",
+            "expenses_amount",
+            "neighborhood",
+            "description"
+          ],
+          "campos_perdidos": [],
+          "tasa_retencion": 1.0
+        },
+        "sin_data_qa": {
+          "campos_recuperados": [
+            "price_amount",
+            "rooms",
+            "bedrooms",
+            "bathrooms",
+            "age_years",
+            "expenses_amount",
+            "neighborhood"
+          ],
+          "campos_perdidos": [
+            "description"
+          ],
+          "tasa_retencion": 0.875
+        },
+        "renombrado_a_clases": {
+          "campos_recuperados": [
+            "price_amount",
+            "rooms",
+            "bedrooms",
+            "bathrooms",
+            "age_years",
+            "expenses_amount",
+            "neighborhood",
+            "description"
+          ],
+          "campos_perdidos": [],
+          "tasa_retencion": 1.0
+        },
+        "sin_ningun_atributo": {
+          "campos_recuperados": [
+            "price_amount",
+            "rooms",
+            "bedrooms",
+            "bathrooms",
+            "age_years",
+            "expenses_amount",
+            "neighborhood"
+          ],
+          "campos_perdidos": [
+            "description"
+          ],
+          "tasa_retencion": 0.875
+        }
+      }
+    }
+  }
+}

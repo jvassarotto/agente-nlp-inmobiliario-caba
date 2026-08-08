@@ -1,0 +1,48 @@
+# ============================================================
+# Requisitos — TP Final Deep Learning (MMA / ITBA)
+# Agente LLM (ReAct) + NLP (BETO fine-tuning) sobre ZonaProp
+# ------------------------------------------------------------
+# Instalacion completa (CPU, suficiente para reproducir la demo):
+#     pip install -r requirements.txt
+#
+# Si tenes GPU NVIDIA y queres entrenar mas rapido, instala torch con CUDA
+# ANTES que este archivo (ver README -> "Instalacion"):
+#     pip install torch --index-url https://download.pytorch.org/whl/cu126
+#
+# Probado en Windows 10 con Python 3.11.15. Versiones exactas verificadas
+# el 08/08/2026 anotadas al lado de cada paquete.
+# ============================================================
+
+# --- Deep Learning (nucleo entrenable) ---
+# torch va primero: si ya instalaste la build CUDA, pip la respeta.
+torch>=2.4                     # verificado con 2.13.0+cu126
+transformers>=4.44             # verificado con 5.14.1 (compatible 4.x y 5.x)
+datasets>=2.20.0               # verificado con 5.0.1
+accelerate>=0.33.0             # verificado con 1.14.0
+seqeval>=1.2.2                 # metricas NER por entidad (F1 de span completo)
+scikit-learn>=1.4.0            # metricas de clasificacion multilabel
+evaluate>=0.4.0
+
+# --- Capa de agente (orquestacion ReAct + tool use) ---
+langchain>=0.3.0               # verificado con 1.3.14
+langchain-core>=0.3.0          # verificado con 1.5.3
+langchain-ollama>=0.2.0        # ChatOllama: LLM local GRATIS via Ollama
+langgraph>=0.2.0               # verificado con 1.2.10 (create_react_agent)
+
+# --- Automatizacion de navegador (contenido dinamico / anti-bot) ---
+# Tras instalar, correr una sola vez:  playwright install chromium
+playwright>=1.44.0             # verificado con 1.62.0
+beautifulsoup4>=4.12.0
+lxml>=5.2.0
+
+# --- Utilidades ---
+pydantic>=2.7.0
+pyyaml>=6.0
+pandas>=2.2.0
+numpy>=1.26.0
+tqdm>=4.66.0
+python-dotenv>=1.0.0
+
+# --- Notebook demo ---
+jupyter>=1.0.0
+ipykernel>=6.29.0

@@ -1,0 +1,37 @@
+# --- Python ---
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+
+# --- Secretos ---
+.env
+
+# --- Config local del editor ---
+.claude/
+
+# --- Material de la materia ---
+# Las diapositivas y consignas son material de la catedra: no corresponde
+# redistribuirlas en un repositorio publico.
+Clases/
+
+# --- Navegador ---
+.playwright/
+
+# --- Checkpoints de modelos ---
+# Cada checkpoint de BETO pesa ~440 MB y GitHub rechaza archivos de mas de
+# 100 MB. Se versionan los reportes de metricas (reports/), no los pesos.
+models/*/
+!models/.gitkeep
+
+# --- Datos crudos del scrape ---
+# El volcado completo no se redistribuye (terminos de uso del portal), pero si
+# se incluye una muestra acotada para reproducibilidad academica.
+data/raw/*.jsonl
+!data/raw/sample_*.jsonl
+
+# --- Fixtures HTML ---
+# Son volcados de paginas del portal: NO se redistribuyen. Se generan solos al
+# correr el scrape. src/agent/robustness.py cae a una muestra sintetica propia
+# cuando no estan, asi que el repo sigue siendo reproducible sin ellos.
+data/fixtures/

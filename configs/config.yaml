@@ -1,0 +1,99 @@
+# ============================================================
+# Configuracion central del proyecto
+# Editar aca en lugar de tocar el codigo.
+# ============================================================
+
+project:
+  seed: 42
+  language: es
+
+# --- Capa de agente (LLM local via Ollama) ---
+agent:
+  # Modelo Ollama. Recomendado para GTX 1650 4GB:
+  #   - "llama3.2:3b-instruct-q4_K_M"  -> entra 100% en 4GB VRAM, rapido.
+  #   - "qwen2.5:7b-instruct-q4_K_M"   -> mejor extraccion, se reparte GPU/CPU (mas lento).
+  # Descargar con:  ollama pull llama3.2:3b-instruct-q4_K_M
+  model: "llama3.2:3b-instruct-q4_K_M"
+  base_url: "http://localhost:11434"
+  temperature: 0.0
+  num_ctx: 8192            # ventana de contexto
+  max_react_steps: 12      # tope de pasos ReAct por pagina (evita loops)
+
+# --- Scraper / objetivo ---
+scrape:
+  base_url: "https://www.zonaprop.com.ar"
+  # Ruta de listado: departamentos en venta en Capital Federal (CABA).
+  listing_path: "/departamentos-venta-capital-federal.html"
+  max_listings: 12000      # objetivo orientativo 8.000-15.000
+  max_pages: 400
+  # De donde extraer cada aviso:
+  #   "cards"  -> desde las tarjetas del listado (RECOMENDADO). Las tarjetas ya
+  #               traen la descripcion completa; 25-30 avisos por request y no
+  #               dispara el challenge de Cloudflare.
+  #   "detail" -> visitando cada pagina de detalle. Da mas campos (antiguedad),
+  #               pero ZonaProp la protege con Cloudflare y suele fallar.
+  extract_from: "cards"
+  # Cloudflare bloquea las URLs paginadas (-pagina-N.html) a partir de la 2,
+  # pero la PRIMERA pagina de cada busqueda responde bien. En vez de insistir
+  # contra el bloqueo, se recorren busquedas por barrio: cada una es una
+  # consulta distinta, visitada una sola vez.
+  barrio_paths:
+    - "/departamentos-venta-palermo.html"
+    - "/departamentos-venta-belgrano.html"
+    - "/departamentos-venta-caballito.html"
+    - "/departamentos-venta-recoleta.html"
+    - "/departamentos-venta-villa-urquiza.html"
+    - "/departamentos-venta-almagro.html"
+    - "/departamentos-venta-nunez.html"
+    - "/departamentos-venta-flores.html"
+    - "/departamentos-venta-villa-crespo.html"
+    - "/departamentos-venta-colegiales.html"
+    - "/departamentos-venta-san-telmo.html"
+    - "/departamentos-venta-barracas.html"
+  headless: false          # false ayuda a pasar anti-bot en la primera corrida
+  # Rate-limit cortes. Con "cards" cada request rinde 25-30 avisos, asi que se
+  # puede esperar bastante entre paginas sin que la corrida se vuelva eterna.
+  # Delays cortos disparan el challenge de Cloudflare a partir de la pagina 2.
+  min_delay_s: 20.0
+  max_delay_s: 40.0
+  timeout_ms: 45000
+  out_path: "data/raw/zonaprop_caba.jsonl"
+
+# --- Dataset sintetico (demo / testeo del pipeline sin scrape real) ---
+synthetic:
+  n_listings: 1200
+  out_dir: "data/synthetic"
+
+# --- Anotacion semiautomatica (LLM como pre-anotador) ---
+annotation:
+  n_to_annotate: 1200      # subconjunto 1.000-1.500 (segun propuesta)
+  ner_out: "data/annotated/ner.jsonl"
+  cls_out: "data/annotated/cls.jsonl"
+  train_split: 0.8
+  val_split: 0.1
+  test_split: 0.1
+
+# --- Fine-tuning NER (token classification) ---
+ner:
+  base_model: "dccuchile/bert-base-spanish-wwm-cased"   # BETO
+  max_length: 192
+  epochs: 5
+  batch_size: 8            # GTX 1650 4GB: 8 con fp16 entra justo
+  grad_accum: 2            # batch efectivo = 16
+  lr: 3.0e-5
+  weight_decay: 0.01
+  fp16: true               # imprescindible en 4GB
+  out_dir: "models/ner-beto"
+
+# --- Fine-tuning clasificacion (sequence classification) ---
+classifier:
+  base_model: "dccuchile/bert-base-spanish-wwm-cased"
+  max_length: 160
+  epochs: 5
+  batch_size: 8
+  grad_accum: 2
+  lr: 2.0e-5
+  weight_decay: 0.01
+  fp16: true
+  multilabel: true         # un aviso puede tener varias senales a la vez
+  out_dir: "models/cls-beto"

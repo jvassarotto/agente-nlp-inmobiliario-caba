@@ -1,0 +1,44 @@
+{
+  "started_at": "2026-08-08T13:45:43.885863+00:00",
+  "mode": "deterministic",
+  "finished_at": "2026-08-08T13:46:44.808975+00:00",
+  "summary": {
+    "pages_visited": 2,
+    "listings_detected": 30,
+    "listings_extracted": 25,
+    "extraction_success_rate": 0.8333,
+    "worst_page_success_rate": 0.8333,
+    "errors": 0
+  },
+  "pages": [
+    {
+      "page": 1,
+      "detected": 30,
+      "extracted": 25,
+      "failed": 0,
+      "success_rate": 0.8333,
+      "failed_urls": []
+    },
+    {
+      "page": 2,
+      "detected": 0,
+      "extracted": 0,
+      "failed": 0,
+      "success_rate": null,
+      "failed_urls": []
+    }
+  ],
+  "errors": [],
+  "fixtures": [
+    {
+      "kind": "search",
+      "file": "search_00_www_zonaprop_com_ar_departamentos_venta_capital_federal_html.html",
+      "url": "https://www.zonaprop.com.ar/departamentos-venta-capital-federal.html"
+    },
+    {
+      "kind": "search",
+      "file": "search_01_www_zonaprop_com_ar_departamentos_venta_capital_federal_pagi.html",
+      "url": "https://www.zonaprop.com.ar/departamentos-venta-capital-federal-pagina-2.html"
+    }
+  ]
+}
