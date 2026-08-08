@@ -139,10 +139,14 @@ annotation:
 # --- Fine-tuning NER (token classification) ---
 ner:
   base_model: "dccuchile/bert-base-spanish-wwm-cased"   # BETO
-  max_length: 192
+  # Tamanio de VENTANA, no limite del aviso. Los avisos largos se procesan por
+  # ventanas deslizantes (src/models/chunking.py), asi que el modelo termina
+  # leyendo el 100% del texto aunque cada pasada vea 256 sub-tokens.
+  # BETO no admite mas de 512: es un limite de su arquitectura.
+  max_length: 256
   epochs: 5
-  batch_size: 8            # GTX 1650 4GB: 8 con fp16 entra justo
-  grad_accum: 2            # batch efectivo = 16
+  batch_size: 4            # GTX 1650 4GB: con ventana de 256, 8 no entra
+  grad_accum: 4            # batch efectivo = 16
   lr: 3.0e-5
   weight_decay: 0.01
   fp16: true               # imprescindible en 4GB
@@ -156,10 +160,12 @@ ner:
 # --- Fine-tuning clasificacion (sequence classification) ---
 classifier:
   base_model: "dccuchile/bert-base-spanish-wwm-cased"
-  max_length: 160
+  # Idem NER: es la ventana. Un aviso largo se clasifica por partes y se toma el
+  # maximo por clase — si la senal aparece en algun lado, el aviso la tiene.
+  max_length: 256
   epochs: 5
-  batch_size: 8
-  grad_accum: 2
+  batch_size: 4
+  grad_accum: 4
   lr: 2.0e-5
   weight_decay: 0.01
   fp16: true

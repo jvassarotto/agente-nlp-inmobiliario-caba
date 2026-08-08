@@ -1,9 +1,9 @@
 {
-  "avisos_revisados": 5,
-  "acuerdo_ner": 0.2,
-  "acuerdo_clasificacion": 0.4,
-  "acuerdo_ambas_tareas": 0.2,
+  "avisos_revisados": 6,
+  "acuerdo_ner": 0.1667,
+  "acuerdo_clasificacion": 0.3333,
+  "acuerdo_ambas_tareas": 0.1667,
   "entidades_borradas": 0,
-  "entidades_agregadas": 6,
+  "entidades_agregadas": 1,
   "nota": "Acuerdo = proporcion de avisos donde el revisor humano no tuvo que corregir la propuesta del LLM para esa tarea. Las etiquetas de reviewed.jsonl son GOLD HUMANO y reemplazan a las del LLM en el conjunto de evaluacion."
 }

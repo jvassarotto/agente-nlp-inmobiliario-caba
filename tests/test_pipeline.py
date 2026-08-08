@@ -114,6 +114,40 @@ def test_prepare_split_shapes():
     print("[6] splits NER/CLS consistentes OK")
 
 
+def test_chunking_cubre_todo():
+    """Las ventanas deslizantes tienen que cubrir TODAS las palabras del aviso.
+
+    Es la propiedad que justifica el chunking: sin el, BETO trunca a 512
+    sub-tokens y el final de los avisos largos nunca se lee ni se evalua.
+    """
+    from src.models.chunking import armar_ventanas
+
+    class TokFalso:
+        """Tokenizador de juguete: cada palabra vale 1 sub-token, salvo las
+        largas, que valen 3 (imita el partido en sub-palabras)."""
+        def tokenize(self, palabra):
+            return ["x"] * (3 if len(palabra) > 8 else 1)
+
+    tok = TokFalso()
+    for n_palabras in (5, 60, 200, 1000):
+        palabras = [f"palabra{i}" if i % 3 else f"p{i}" for i in range(n_palabras)]
+        ventanas = armar_ventanas(palabras, tok, max_length=64, solape=8)
+
+        cubiertas = set()
+        for ini, fin in ventanas:
+            assert ini < fin, (ini, fin)
+            cubiertas.update(range(ini, fin))
+        faltan = set(range(n_palabras)) - cubiertas
+        assert not faltan, f"{n_palabras} palabras: quedaron sin cubrir {sorted(faltan)[:5]}"
+
+        # Las ventanas tienen que avanzar: si no, el bucle no termina nunca.
+        for (i1, _), (i2, _) in zip(ventanas, ventanas[1:]):
+            assert i2 > i1, "las ventanas no avanzan"
+
+    print("[10] chunking cubre el 100% de las palabras OK ->",
+          f"{len(armar_ventanas(['x'] * 1000, tok, 64, 8))} ventanas para 1000 palabras")
+
+
 def test_generador_sin_colisiones():
     """Las oraciones de relleno no pueden compartir tokens con las entidades.
 
@@ -214,4 +248,5 @@ if __name__ == "__main__":
     test_parser_robustness()
     test_generador_sin_colisiones()
     test_parse_search_listings()
+    test_chunking_cubre_todo()
     print("\n==== TODOS LOS TESTS PASARON ====")

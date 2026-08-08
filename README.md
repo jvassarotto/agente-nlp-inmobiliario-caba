@@ -354,8 +354,15 @@ dos son intercambiables.
   sintéticos **no** se traslada a texto real, y ese es un resultado del trabajo, no un accidente.
 - **Anotación semiautomática.** El pre-anotador es un LLM chico (`llama3.2:3b`, por la restricción
   de 4 GB de VRAM); sus errores se propagan, y por eso la revisión manual del subconjunto.
-- **Longitud del texto.** `max_length` es 192 tokens: las descripciones reales (mediana ~1.600
-  caracteres) se truncan. Subirlo no entra en 4 GB de VRAM con este batch.
+- **Longitud del texto: resuelto con ventanas deslizantes.** BETO tiene un límite
+  **arquitectónico** de 512 sub-tokens — son las posiciones que aprendió al pre-entrenarse, no un
+  parámetro ajustable. Los avisos reales llegan a 1.173 sub-tokens, así que ni con el máximo se
+  leerían enteros (entrarían completos 86 de 105). La solución es partir el aviso en ventanas que
+  sí entren y unir las predicciones (`src/models/chunking.py`), con dos cuidados:
+  las ventanas **se solapan**, para no cortar una entidad al medio; y al unir **gana la ventana
+  donde la palabra está más al centro**, porque ahí tiene contexto de los dos lados.
+  Para clasificación se toma el **máximo** por clase entre ventanas: si la señal aparece en alguna
+  parte del aviso, el aviso la tiene (promediar la diluiría en los avisos largos).
 - **Términos de uso.** Scraping con fines **académicos**, a ritmo razonable y sin redistribuir el
   contenido del portal: el repositorio incluye una muestra acotada de datos ya estructurados, no
   volcados de páginas.

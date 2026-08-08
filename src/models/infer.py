@@ -13,37 +13,38 @@ from src.utils.config import load_config
 from src.utils.text import word_tokenize, group_entities
 
 
-def extract_entities(text, model_dir, max_length):
-    from transformers import AutoTokenizer, AutoModelForTokenClassification
+def _device():
     import torch
+    return "cuda" if torch.cuda.is_available() else "cpu"
+
+
+def extract_entities(text, model_dir, max_length):
+    """Reconoce entidades en el aviso COMPLETO, sea cual sea su largo.
+
+    BETO no puede leer mas de 512 sub-tokens, asi que los avisos largos se
+    procesan por ventanas deslizantes (ver src/models/chunking.py).
+    """
+    from transformers import AutoTokenizer, AutoModelForTokenClassification
+    from src.models.chunking import predecir_por_ventanas
+
+    dev = _device()
     tok = AutoTokenizer.from_pretrained(model_dir)
-    model = AutoModelForTokenClassification.from_pretrained(model_dir).eval()
+    model = AutoModelForTokenClassification.from_pretrained(model_dir).eval().to(dev)
     words = word_tokenize(text)
-    enc = tok(words, is_split_into_words=True, truncation=True,
-              max_length=max_length, return_tensors="pt")
-    with torch.no_grad():
-        pred_ids = model(**enc).logits[0].argmax(-1).tolist()
-    id2label = model.config.id2label
-    word_ids = enc.word_ids(0)
-    labels, prev = [], None
-    for idx, wid in enumerate(word_ids):
-        if wid is None or wid == prev:
-            prev = wid
-            continue
-        labels.append((words[wid], id2label[pred_ids[idx]]))
-        prev = wid
-    return group_entities(labels)
+    etiquetas = predecir_por_ventanas(words, tok, model, max_length,
+                                      model.config.id2label, device=dev)
+    return group_entities(list(zip(words, etiquetas)))
 
 
 def classify_signals(text, model_dir, max_length, threshold=0.5):
+    """Clasifica el aviso COMPLETO, combinando ventanas si es largo."""
     from transformers import AutoTokenizer, AutoModelForSequenceClassification
-    import torch, numpy as np
+    from src.models.chunking import clasificar_por_ventanas
+
+    dev = _device()
     tok = AutoTokenizer.from_pretrained(model_dir)
-    model = AutoModelForSequenceClassification.from_pretrained(model_dir).eval()
-    enc = tok(text, truncation=True, max_length=max_length, return_tensors="pt")
-    with torch.no_grad():
-        logits = model(**enc).logits[0].numpy()
-    probs = 1 / (1 + np.exp(-logits))
+    model = AutoModelForSequenceClassification.from_pretrained(model_dir).eval().to(dev)
+    probs = clasificar_por_ventanas(text, tok, model, max_length, device=dev)
     id2label = model.config.id2label
     return [id2label[i] for i, p in enumerate(probs) if p >= threshold]
 

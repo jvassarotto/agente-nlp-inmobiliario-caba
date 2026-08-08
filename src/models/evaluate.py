@@ -32,10 +32,14 @@ def _device():
 
 
 def eval_ner(root, model_dir, max_length, input_rel):
-    """F1 por entidad con seqeval (matching de SPAN completo, no por token)."""
+    """F1 por entidad con seqeval (matching de SPAN completo, no por token).
+
+    Evalua sobre TODAS las palabras del aviso: los avisos largos se procesan por
+    ventanas deslizantes, asi que no queda texto sin evaluar por truncamiento.
+    """
     from transformers import AutoTokenizer, AutoModelForTokenClassification
     from seqeval.metrics import classification_report, f1_score
-    import torch
+    from src.models.chunking import predecir_por_ventanas
 
     dev = _device()
     tok = AutoTokenizer.from_pretrained(model_dir)
@@ -43,23 +47,10 @@ def eval_ner(root, model_dir, max_length, input_rel):
     recs = list(read_jsonl(Path(root) / input_rel))
     y_true, y_pred = [], []
     for r in recs:
-        enc = tok(r["tokens"], is_split_into_words=True, truncation=True,
-                  max_length=max_length, return_tensors="pt")
-        word_ids = enc.word_ids(0)
-        enc = {k: v.to(dev) for k, v in enc.items()}
-        with torch.no_grad():
-            logits = model(**enc).logits[0]
-        pred_ids = logits.argmax(-1).tolist()
-        seq_true, seq_pred, prev = [], [], None
-        for idx, wid in enumerate(word_ids):
-            if wid is None or wid == prev:
-                prev = wid
-                continue
-            seq_true.append(r["ner_tags"][wid])
-            seq_pred.append(ID2LABEL[pred_ids[idx]])
-            prev = wid
-        y_true.append(seq_true)
-        y_pred.append(seq_pred)
+        etiquetas = predecir_por_ventanas(r["tokens"], tok, model, max_length,
+                                          ID2LABEL, device=dev)
+        y_true.append(list(r["ner_tags"]))
+        y_pred.append(etiquetas)
 
     report = classification_report(y_true, y_pred, digits=4)
     print(report)
@@ -70,7 +61,7 @@ def eval_cls(root, model_dir, max_length, input_rel, threshold=0.5):
     """Precision/recall/F1 por clase + macro (multilabel)."""
     from transformers import AutoTokenizer, AutoModelForSequenceClassification
     from sklearn.metrics import classification_report, f1_score
-    import torch
+    from src.models.chunking import clasificar_por_ventanas
 
     dev = _device()
     tok = AutoTokenizer.from_pretrained(model_dir)
@@ -78,11 +69,7 @@ def eval_cls(root, model_dir, max_length, input_rel, threshold=0.5):
     recs = list(read_jsonl(Path(root) / input_rel))
     Y_true, Y_pred = [], []
     for r in recs:
-        enc = tok(r["text"], truncation=True, max_length=max_length, return_tensors="pt")
-        enc = {k: v.to(dev) for k, v in enc.items()}
-        with torch.no_grad():
-            logits = model(**enc).logits[0].float().cpu().numpy()
-        probs = 1 / (1 + np.exp(-logits))
+        probs = np.array(clasificar_por_ventanas(r["text"], tok, model, max_length, device=dev))
         Y_pred.append((probs >= threshold).astype(int))
         v = np.zeros(len(SIGNAL_CLASSES), dtype=int)
         for s in r.get("signals", []):
