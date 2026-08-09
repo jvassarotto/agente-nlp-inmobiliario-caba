@@ -15,6 +15,12 @@ __pycache__/
 # mientras se trabaja, pero no forman parte del entregable.
 *.bak
 
+# --- Documentos de trabajo, no del Trabajo Final ---
+# El repositorio es el entregable academico: solo va lo que forma parte del TP.
+CLAUDE.md
+plan.md
+docs/guia_github.md
+
 # --- Material de la materia ---
 # Las diapositivas y consignas son material de la catedra: no corresponde
 # redistribuirlas en un repositorio publico.
