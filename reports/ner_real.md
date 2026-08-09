@@ -2,29 +2,29 @@
 
 - **Modelo:** `models/ner-beto`
 - **Conjunto evaluado:** `data/annotated/real_ner.jsonl` (real)
-- **Ejemplos:** 65
+- **Ejemplos:** 105
 
 ## Reporte por clase
 
 ```
               precision    recall  f1-score   support
 
-     AMENITY     0.2248    0.3268    0.2664       205
-  ANTIGUEDAD     0.0909    0.1667    0.1176         6
-      ESTADO     0.0455    0.1500    0.0698        20
-    EXPENSAS     0.0526    0.2500    0.0870         4
- ORIENTACION     0.1591    0.2414    0.1918        58
+     AMENITY     0.1926    0.3381    0.2454       417
+  ANTIGUEDAD     0.1905    0.2667    0.2222        15
+      ESTADO     0.0739    0.4054    0.1250        37
+    EXPENSAS     0.0294    0.2222    0.0519         9
+ ORIENTACION     0.0769    0.1308    0.0969       107
 
-   micro avg     0.1784    0.2935    0.2219       293
-   macro avg     0.1146    0.2270    0.1465       293
-weighted avg     0.1945    0.2935    0.2327       293
+   micro avg     0.1459    0.3009    0.1965       585
+   macro avg     0.1127    0.2727    0.1483       585
+weighted avg     0.1614    0.3009    0.2071       585
 ```
 
 ## Resumen
 
 ```json
 {
-  "f1_micro": 0.22193548387096776,
-  "n_ejemplos": 65
+  "f1_micro": 0.19653824678950305,
+  "n_ejemplos": 105
 }
 ```

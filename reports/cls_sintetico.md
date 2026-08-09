@@ -9,23 +9,23 @@
 ```
                precision    recall  f1-score   support
 
-DUENO_DIRECTO     0.9744    0.9744    0.9744        39
-  OPORTUNIDAD     0.9744    0.9268    0.9500        41
-     URGENCIA     0.9600    0.9600    0.9600        25
+DUENO_DIRECTO     1.0000    1.0000    1.0000        39
+  OPORTUNIDAD     1.0000    1.0000    1.0000        41
+     URGENCIA     1.0000    1.0000    1.0000        25
     REFACCION     1.0000    1.0000    1.0000        30
 
-    micro avg     0.9774    0.9630    0.9701       135
-    macro avg     0.9772    0.9653    0.9711       135
- weighted avg     0.9774    0.9630    0.9700       135
-  samples avg     0.6521    0.6542    0.6516       135
+    micro avg     1.0000    1.0000    1.0000       135
+    macro avg     1.0000    1.0000    1.0000       135
+ weighted avg     1.0000    1.0000    1.0000       135
+  samples avg     0.6917    0.6917    0.6917       135
 ```
 
 ## Resumen
 
 ```json
 {
-  "f1_macro": 0.9710897435897435,
-  "f1_micro": 0.9701492537313433,
+  "f1_macro": 1.0,
+  "f1_micro": 1.0,
   "n_ejemplos": 120
 }
 ```

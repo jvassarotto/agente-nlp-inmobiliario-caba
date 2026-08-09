@@ -93,26 +93,30 @@ Todos los datos necesarios para reproducir el trabajo **están incluidos en este
 
 | Modelo | Test **sintético** | Conjunto **real** |
 |---|---|---|
-| **NER** — F1 micro (seqeval) | **0.997** | **0.222** |
-| **Clasificación** — F1 macro | **0.971** | **0.176** |
+| **NER** — F1 micro (seqeval) | **0.995** | **0.197** |
+| **Clasificación** — F1 macro | **1.000** | **0.293** |
+
+Evaluado sobre 120 avisos sintéticos y **105 avisos reales** (585 entidades), leyendo el texto
+completo mediante ventanas deslizantes.
 
 **Este contraste es el hallazgo central del trabajo, y no se disimula.** El F1 casi perfecto sobre
 datos sintéticos no mide qué tan bueno es el modelo: mide qué tan fácil es el test. Los avisos
 sintéticos salen de plantillas, así que el modelo aprende la plantilla en lugar del concepto.
+Que la clasificación dé **1.000 exacto** sobre sintético es la señal más clara de eso.
 
 Los dos modelos fallan de manera **distinta**, y eso es informativo:
 
 - **El NER sobre-etiqueta.** Aprendió "sustantivo después de *Cuenta con*" en vez del vocabulario
   de amenities. Sobre texto real marca cosas como `AMENITY → ventilación` o `ORIENTACION → Scalabrini`
-  (un nombre de calle).
-- **El clasificador casi no dispara.** Precisión macro 0.55 pero recall 0.16: cuando predice, suele
-  acertar, pero se pierde la mayoría. Los avisos reales expresan «dueño directo» o «urgencia» con
-  formas que el generador nunca produjo.
+  (un nombre de calle). Precisión 0.15 contra recall 0.30: dispara de más.
+- **El clasificador es lo contrario: casi no dispara.** Precisión macro 0.57 contra recall 0.24.
+  Cuando predice suele acertar, pero se pierde la mayoría — los avisos reales expresan «dueño
+  directo» o «urgencia» con formas que el generador nunca produjo.
 
 **Cómo leer estos números.** Las etiquetas del conjunto real vienen del pre-anotador LLM
 (`llama3.2:3b`) **sin revisión humana completa**, así que miden concordancia con un anotador
-imperfecto, no con verdad de referencia. Además son sólo 65 avisos. La **magnitud de la caída** es
-sólida; los valores exactos, no.
+imperfecto, no con verdad de referencia. La **magnitud de la caída** es sólida; los valores
+exactos, no.
 
 La conclusión práctica es el trabajo futuro más urgente: **anotar un conjunto real de tamaño
 razonable**. Es lo que separa este pipeline funcionando de un modelo utilizable.
