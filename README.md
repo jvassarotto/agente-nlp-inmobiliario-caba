@@ -1,4 +1,4 @@
-# Agente LLM + NLP para avisos inmobiliarios (ZonaProp / CABA)
+# Agente LLM + NLP para avisos inmobiliarios en CABA
 
 **Trabajo Final — Deep Learning · Maestría en Management & Analytics (MMA), ITBA**
 Alumno: Joaquín Héctor Vassarotto — Legajo 106442
@@ -10,8 +10,10 @@ Alumno: Joaquín Héctor Vassarotto — Legajo 106442
 Una arquitectura de **dos capas** que convierte avisos inmobiliarios en variables estructuradas:
 
 1. **Capa de agente (orquestación).** Un agente **ReAct / tool-use** con un LLM **local y gratuito**
-   (vía Ollama) navega ZonaProp, decide cómo paginar y qué extraer, y se recupera ante errores.
-   Usa Playwright para el contenido dinámico y un *parser resiliente* de dos niveles.
+   (vía Ollama) navega portales inmobiliarios, decide cómo paginar y qué extraer, y se recupera
+   ante errores. Usa Playwright para el contenido dinámico y un *parser resiliente* de dos niveles.
+   Se trabajó sobre **ZonaProp y Argenprop**: el cambio de fuente es en sí mismo uno de los
+   resultados (ver la sección sobre el anti-bot).
 2. **Capa de enriquecimiento (NLP — el núcleo entrenable).** Dos *transformers* **BETO**
    (BERT-base-spanish) *fine-tuneados*:
    - **NER** (token classification): `AMENITY`, `ESTADO`, `ANTIGUEDAD`, `ORIENTACION`, `EXPENSAS`.
