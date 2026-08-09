@@ -1,0 +1,134 @@
+{
+  "avisos": 105,
+  "campos_prometidos_por_la_propuesta": {
+    "price_amount": {
+      "etiqueta": "precio",
+      "completos": 105,
+      "total": 105,
+      "pct": 1.0
+    },
+    "surface_total_m2": {
+      "etiqueta": "superficie",
+      "completos": 101,
+      "total": 105,
+      "pct": 0.9619
+    },
+    "rooms": {
+      "etiqueta": "ambientes",
+      "completos": 86,
+      "total": 105,
+      "pct": 0.819
+    },
+    "age_years": {
+      "etiqueta": "antiguedad",
+      "completos": 51,
+      "total": 105,
+      "pct": 0.4857
+    },
+    "neighborhood": {
+      "etiqueta": "ubicacion",
+      "completos": 105,
+      "total": 105,
+      "pct": 1.0
+    },
+    "description": {
+      "etiqueta": "texto libre",
+      "completos": 105,
+      "total": 105,
+      "pct": 1.0
+    }
+  },
+  "campos_adicionales": {
+    "price_currency": 1.0,
+    "expenses_amount": 0.7619,
+    "bedrooms": 0.8,
+    "bathrooms": 0.419,
+    "address": 0.7619,
+    "url": 1.0
+  },
+  "por_fuente": {
+    "argenprop": {
+      "price_amount": {
+        "etiqueta": "precio",
+        "completos": 80,
+        "total": 80,
+        "pct": 1.0
+      },
+      "surface_total_m2": {
+        "etiqueta": "superficie",
+        "completos": 77,
+        "total": 80,
+        "pct": 0.9625
+      },
+      "rooms": {
+        "etiqueta": "ambientes",
+        "completos": 61,
+        "total": 80,
+        "pct": 0.7625
+      },
+      "age_years": {
+        "etiqueta": "antiguedad",
+        "completos": 51,
+        "total": 80,
+        "pct": 0.6375
+      },
+      "neighborhood": {
+        "etiqueta": "ubicacion",
+        "completos": 80,
+        "total": 80,
+        "pct": 1.0
+      },
+      "description": {
+        "etiqueta": "texto libre",
+        "completos": 80,
+        "total": 80,
+        "pct": 1.0
+      }
+    },
+    "zonaprop": {
+      "price_amount": {
+        "etiqueta": "precio",
+        "completos": 25,
+        "total": 25,
+        "pct": 1.0
+      },
+      "surface_total_m2": {
+        "etiqueta": "superficie",
+        "completos": 24,
+        "total": 25,
+        "pct": 0.96
+      },
+      "rooms": {
+        "etiqueta": "ambientes",
+        "completos": 25,
+        "total": 25,
+        "pct": 1.0
+      },
+      "age_years": {
+        "etiqueta": "antiguedad",
+        "completos": 0,
+        "total": 25,
+        "pct": 0.0
+      },
+      "neighborhood": {
+        "etiqueta": "ubicacion",
+        "completos": 25,
+        "total": 25,
+        "pct": 1.0
+      },
+      "description": {
+        "etiqueta": "texto libre",
+        "completos": 25,
+        "total": 25,
+        "pct": 1.0
+      }
+    }
+  },
+  "aporte_del_texto_a_la_antiguedad": {
+    "avisos_sin_campo": 54,
+    "mencionados_en_el_texto": 12,
+    "pct_de_los_faltantes": 0.2222,
+    "cobertura_solo_campo": 0.4857,
+    "cobertura_sumando_texto": 0.6
+  }
+}

@@ -121,6 +121,35 @@ exactos, no.
 La conclusión práctica es el trabajo futuro más urgente: **anotar un conjunto real de tamaño
 razonable**. Es lo que separa este pipeline funcionando de un modelo utilizable.
 
+### El dataset primario: ¿cumple lo que promete la propuesta?
+
+La propuesta compromete que el agente capture, por cada aviso, *"campos estructurados (precio,
+superficie, ambientes, antigüedad, ubicación) y el texto libre de la descripción"*. Se auditó
+campo por campo (`scripts/auditar_dataset.py`) sobre los 105 avisos reales:
+
+| Campo prometido | Cobertura | |
+|---|---|---|
+| precio | **100%** | |
+| ubicación | **100%** | |
+| texto libre de la descripción | **100%** | |
+| superficie | 96% | |
+| ambientes | 82% | |
+| **antigüedad** | **49%** | ← el punto flojo |
+
+**Los seis campos se capturan, pero la antigüedad tiene cobertura pobre**, y el motivo es
+estructural, no un error del parser: **la tarjeta del listado no siempre la publica**. En ZonaProp
+directamente nunca aparece (0/25) porque sólo está en la página de detalle, que es la que bloquea
+Cloudflare. Argenprop la trae en el 64% de los casos.
+
+Acá la capa de NLP hace un aporte concreto y medible al dataset tabular: de los 54 avisos sin el
+campo, **12 mencionan la antigüedad en la descripción** («el edificio tiene 65 años aprox.», «a
+estrenar», «1 ambiente en pozo»). Es decir que el texto **recupera el 22% de lo faltante** y lleva
+la cobertura del 49% al **60%**.
+
+Es una mejora modesta y conviene presentarla como tal: no rescata la mayoría de los casos, pero
+muestra que la entidad `ANTIGUEDAD` del NER no es decorativa — completa un campo estructurado que
+el portal deja vacío la mitad de las veces.
+
 ### ¿Y si el portal ya publica los atributos tabulados?
 
 Es la objeción más razonable que se le puede hacer a este trabajo, así que se midió en lugar de
