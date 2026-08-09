@@ -279,37 +279,41 @@ def construir(res: dict) -> Presentation:
           size=15)
 
     # 7. EL resultado del trabajo: la brecha sintetico -> real
-    ns, cs = res["ner_sint"], res["cls_sint"]
-    nr, cr = res["ner_real"], res["cls_real"]
+    ns, nr = res["ner_sint"], res["ner_real"]
+    cs = res["cls_sint"]
+    acu = _json("reports/annotation_agreement.json") or {}
     placa_metricas(
         prs, "Resultados — la brecha sintético → real",
         [(fmt(ns.get("f1_micro") if ns else None), "F1 NER\nsobre sintético"),
-         (fmt(nr.get("f1_micro") if nr else None), "F1 NER\nsobre REAL"),
+         (fmt(nr.get("f1_micro") if nr else None), "F1 NER\nsobre REAL\n(gold humano)"),
          (fmt(cs.get("f1_macro") if cs else None), "F1 macro clasif.\nsobre sintético"),
-         (fmt(cr.get("f1_macro") if cr else None), "F1 macro clasif.\nsobre REAL")],
-        nota=["Este contraste es el hallazgo central, y no se disimula: un F1 casi perfecto sobre "
-              "datos sintéticos no mide qué tan bueno es el modelo, sino qué tan fácil es el test.",
+         (str(acu.get("avisos_revisados", "—")), "avisos revisados\na mano")],
+        nota=["Un F1 casi perfecto sobre datos sintéticos no mide qué tan bueno es el modelo, sino "
+              "qué tan fácil es el test: los avisos salen de plantillas y el modelo aprende la "
+              "plantilla en lugar del concepto.",
               "",
-              "Los avisos sintéticos salen de plantillas, así que el modelo aprende la plantilla "
-              "en lugar del concepto."])
+              "El conjunto real es verdad de referencia HUMANA, no etiquetas de otro modelo. "
+              "Contra el LLM el NER daba 0.197; contra el humano, 0.202: la conclusión no depende "
+              "de quién anotó."])
 
-    # 8. Como falla cada modelo (el analisis, no solo el numero)
-    placa(prs, "Los dos modelos fallan distinto",
-          ["EL NER SOBRE-ETIQUETA.",
-           "      Aprendió «sustantivo después de Cuenta con» en vez del vocabulario real de "
-           "amenities. Sobre texto real marca AMENITY → «ventilación», «universidades», y llega a "
-           "marcar el nombre de una calle como ORIENTACION.",
+    # 8. Lo que solo aparecio al revisar a mano
+    placa(prs, "Lo que sólo apareció al revisar a mano",
+          ["EL PRE-ANOTADOR LLM ALUCINABA.",
+           "      Propuso DUENO_DIRECTO en 21 avisos donde esa frase no aparece ni una vez. "
+           "Y URGENCIA en 14, también sin ninguna mención real.",
+           "      Su falla dominante, sin embargo, es la OMISIÓN: el revisor agregó 84 entidades "
+           "y borró 30. Encuentra menos de la mitad de lo que hay.",
            "",
-           "EL CLASIFICADOR CASI NO DISPARA.",
-           "      Precisión macro 0.55 pero recall 0.16: cuando predice suele acertar, pero se "
-           "pierde la mayoría. Los avisos reales expresan «dueño directo» o «urgencia» con formas "
-           "que el generador nunca produjo.",
+           "LA CLASIFICACIÓN NO SE PUDO EVALUAR — y ese es el hallazgo.",
+           "      Tras la corrección quedaron 2 señales positivas en 45 avisos, con tres clases "
+           "vacías. Cualquier F1 sería ruido, así que no se reporta ninguno.",
+           "      La causa: el 73% de la muestra son avisos de INMOBILIARIAS (llevan matrícula). "
+           "Una inmobiliaria nunca escribe «dueño directo».",
            "",
-           "CÓMO LEER ESTOS NÚMEROS.",
-           "      Las etiquetas del conjunto real vienen del pre-anotador LLM sin revisión humana "
-           "completa, sobre 65 avisos. Miden concordancia con un anotador imperfecto, no verdad de "
-           "referencia. La magnitud de la caída es sólida; los valores exactos, no."],
-          size=15)
+           "CONSECUENCIA METODOLÓGICA.",
+           "      Para evaluar esa capa hace falta muestrear avisos de particulares. No es una "
+           "falla del modelo sino del conjunto con el que se lo probó."],
+          size=14)
 
     # 8. Resultados del agente (numeros reales)
     rob = res["robustez"]

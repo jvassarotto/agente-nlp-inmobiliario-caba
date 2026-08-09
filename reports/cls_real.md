@@ -2,30 +2,30 @@
 
 - **Modelo:** `models/cls-beto`
 - **Conjunto evaluado:** `data/annotated/real_cls.jsonl` (real)
-- **Ejemplos:** 105
+- **Ejemplos:** 45
 
 ## Reporte por clase
 
 ```
                precision    recall  f1-score   support
 
-DUENO_DIRECTO     0.5200    0.2281    0.3171        57
-  OPORTUNIDAD     0.6552    0.6129    0.6333        31
-     URGENCIA     0.1111    0.0303    0.0476        33
-    REFACCION     1.0000    0.0952    0.1739        21
+DUENO_DIRECTO     0.0000    0.0000    0.0000         0
+  OPORTUNIDAD     0.1818    1.0000    0.3077         2
+     URGENCIA     0.0000    0.0000    0.0000         0
+    REFACCION     0.0000    0.0000    0.0000         0
 
-    micro avg     0.5385    0.2465    0.3382       142
-    macro avg     0.5716    0.2416    0.2930       142
- weighted avg     0.5255    0.2465    0.3023       142
-  samples avg     0.2492    0.1302    0.1648       142
+    micro avg     0.0645    1.0000    0.1212         2
+    macro avg     0.0455    0.2500    0.0769         2
+ weighted avg     0.1818    1.0000    0.3077         2
+  samples avg     0.0444    0.0444    0.0444         2
 ```
 
 ## Resumen
 
 ```json
 {
-  "f1_macro": 0.2929846487905873,
-  "f1_micro": 0.33816425120772947,
-  "n_ejemplos": 105
+  "f1_macro": 0.07692307692307693,
+  "f1_micro": 0.12121212121212122,
+  "n_ejemplos": 45
 }
 ```

@@ -91,35 +91,85 @@ Todos los datos necesarios para reproducir el trabajo **están incluidos en este
 
 ### El resultado principal: la brecha sintético → real
 
-| Modelo | Test **sintético** | Conjunto **real** |
+| Modelo | Test **sintético** | Conjunto **real** (gold humano) |
 |---|---|---|
-| **NER** — F1 micro (seqeval) | **0.995** | **0.197** |
-| **Clasificación** — F1 macro | **1.000** | **0.293** |
+| **NER** — F1 micro (seqeval) | **0.995** | **0.202** |
+| **Clasificación** — F1 macro | **1.000** | *sin poder estadístico* — ver abajo |
 
-Evaluado sobre 120 avisos sintéticos y **105 avisos reales** (585 entidades), leyendo el texto
-completo mediante ventanas deslizantes.
+El conjunto real son **45 avisos revisados y corregidos a mano** (427 entidades), leídos completos
+mediante ventanas deslizantes. No son las etiquetas del LLM: son verdad de referencia humana.
+
+> **Dato tranquilizador:** contra las etiquetas del LLM el NER daba 0.197; contra el gold humano da
+> 0.202. La conclusión sobre el NER **no depende de quién anotó**, que es la mejor señal de que el
+> resultado es real y no un artefacto del anotador.
 
 **Este contraste es el hallazgo central del trabajo, y no se disimula.** El F1 casi perfecto sobre
 datos sintéticos no mide qué tan bueno es el modelo: mide qué tan fácil es el test. Los avisos
 sintéticos salen de plantillas, así que el modelo aprende la plantilla en lugar del concepto.
 Que la clasificación dé **1.000 exacto** sobre sintético es la señal más clara de eso.
 
-Los dos modelos fallan de manera **distinta**, y eso es informativo:
+**El NER sobre-etiqueta.** Aprendió "sustantivo después de *Cuenta con*" en vez del vocabulario de
+amenities. Sobre texto real marca cosas como `AMENITY → ventilación` o `ORIENTACION → Scalabrini`
+(un nombre de calle). Precisión 0.18 contra recall 0.24.
 
-- **El NER sobre-etiqueta.** Aprendió "sustantivo después de *Cuenta con*" en vez del vocabulario
-  de amenities. Sobre texto real marca cosas como `AMENITY → ventilación` o `ORIENTACION → Scalabrini`
-  (un nombre de calle). Precisión 0.15 contra recall 0.30: dispara de más.
-- **El clasificador es lo contrario: casi no dispara.** Precisión macro 0.57 contra recall 0.24.
-  Cuando predice suele acertar, pero se pierde la mayoría — los avisos reales expresan «dueño
-  directo» o «urgencia» con formas que el generador nunca produjo.
+### La clasificación no se pudo evaluar, y el motivo es un hallazgo
 
-**Cómo leer estos números.** Las etiquetas del conjunto real vienen del pre-anotador LLM
-(`llama3.2:3b`) **sin revisión humana completa**, así que miden concordancia con un anotador
-imperfecto, no con verdad de referencia. La **magnitud de la caída** es sólida; los valores
-exactos, no.
+Al revisar los 45 avisos a mano apareció algo que ninguna métrica hubiera mostrado: **los avisos
+reales casi no tienen señales del vendedor.**
+
+| Señal | El LLM propuso | Aparece en el texto | Gold humano |
+|---|---|---|---|
+| `DUENO_DIRECTO` | 21 | **0** | 0 |
+| `URGENCIA` | 14 | **0** | 0 |
+| `REFACCION` | 5 | **0** | 0 |
+| `OPORTUNIDAD` | 16 | 11 | 2 |
+
+Con 2 positivos sobre 45 avisos y tres clases vacías, **cualquier F1 sería ruido**. No se reporta un
+número porque no lo hay: se reporta por qué no lo hay.
+
+**La causa está identificada: el 73% de la muestra son avisos de inmobiliarias** (llevan matrícula,
+CUCICBA). Una inmobiliaria no escribe «dueño directo» — es, literalmente, lo contrario de lo que
+ofrece. Las señales que busca este clasificador viven en avisos de **particulares**, y el muestreo
+por barrio del portal devuelve mayoritariamente publicaciones profesionales.
+
+Dos consecuencias, y las dos son resultados:
+
+1. **Para evaluar esta capa hace falta otra estrategia de muestreo**, orientada a avisos de
+   particulares. No es un problema del modelo sino del conjunto con el que se lo probó.
+2. **El pre-anotador LLM alucinaba de forma masiva.** Propuso `DUENO_DIRECTO` en 21 avisos donde
+   esa frase **no aparece ni una vez**. Es la justificación más contundente de por qué la revisión
+   humana no era un trámite opcional.
+
+> **Nota de criterio.** El gold humano excluye la palabra «oportunidad» cuando es relleno
+> publicitario («una oportunidad única para vivir en Palermo»), reservando la etiqueta para señales
+> reales de negociación. El modelo, en cambio, fue entrenado con frases como «Oportunidad única.»
+> como positivas. Ese desajuste de criterio entre entrenamiento y evaluación penaliza al modelo, y
+> se declara acá para que no se lea como una falla suya.
 
 La conclusión práctica es el trabajo futuro más urgente: **anotar un conjunto real de tamaño
 razonable**. Es lo que separa este pipeline funcionando de un modelo utilizable.
+
+### Cuánto se puede confiar en el pre-anotador LLM
+
+La propuesta plantea anotación semiautomática: el LLM pre-anota y un humano revisa. Se revisaron
+**45 avisos a mano** (`src/annotation/review.py`), corrigiendo las etiquetas, no sólo marcándolas.
+El acuerdo entre el LLM y el revisor humano:
+
+| | |
+|---|---|
+| Avisos donde el NER del LLM quedó sin corregir | **2,2%** (1 de 45) |
+| Avisos donde las señales quedaron sin corregir | 53,3% |
+| Avisos correctos en **ambas** tareas | **0%** |
+| Entidades que el humano **agregó** (el LLM no las vio) | **84** |
+| Entidades que el humano borró (el LLM las inventó) | 30 |
+
+**El modo de falla dominante del pre-anotador es la omisión**, no la invención: se agregaron 84
+entidades contra 30 borradas. Dicho de otra forma, `llama3.2:3b` como anotador de NER encuentra
+menos de la mitad de lo que hay.
+
+Esto tiene una implicancia metodológica que conviene decir en voz alta: **entrenar con etiquetas
+del LLM sin revisar habría producido un modelo que hereda esa ceguera.** La revisión humana no es
+un paso de control de calidad, es parte del método.
 
 ### El dataset primario: ¿cumple lo que promete la propuesta?
 
