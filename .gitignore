@@ -10,6 +10,11 @@ __pycache__/
 # --- Config local del editor ---
 .claude/
 
+# --- Respaldos de trabajo ---
+# Copias que se hacen al rehacer una anotacion o una revision. Son utiles
+# mientras se trabaja, pero no forman parte del entregable.
+*.bak
+
 # --- Material de la materia ---
 # Las diapositivas y consignas son material de la catedra: no corresponde
 # redistribuirlas en un repositorio publico.
