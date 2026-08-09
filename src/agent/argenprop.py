@@ -162,6 +162,36 @@ def parse_card(node) -> dict:
     }
 
 
+def parse_detail_features(html: str) -> dict:
+    """Extrae la ficha ESTRUCTURADA de la pagina de detalle.
+
+    Argenprop publica en el detalle unas listas `ul.property-features` con los
+    amenities, ambientes y servicios que el publicador tildo. Sirve para
+    responder una pregunta central del proyecto: **¿hace falta NLP sobre la
+    descripcion, si el portal ya da los atributos tabulados?**
+
+    Devuelve:
+      - `tabulados`: todos los items de esas listas, normalizados a minusculas.
+      - `clave_valor`: los pares tipo "Cant. Dormitorios: 3".
+    """
+    soup = BeautifulSoup(html, "lxml")
+    tabulados: list[str] = []
+    clave_valor: dict[str, str] = {}
+
+    for ul in soup.select("ul.property-features"):
+        for li in ul.find_all("li"):
+            txt = li.get_text(" ", strip=True)
+            if not txt:
+                continue
+            if ":" in txt:
+                k, _, v = txt.partition(":")
+                clave_valor[k.strip()] = v.strip()
+            else:
+                tabulados.append(txt.strip().lower())
+
+    return {"tabulados": sorted(set(tabulados)), "clave_valor": clave_valor}
+
+
 def parse_listings_con_conteo(html: str) -> tuple[int, list[dict]]:
     """Devuelve (tarjetas detectadas, avisos extraidos con exito).
 

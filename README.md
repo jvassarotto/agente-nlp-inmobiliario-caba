@@ -121,6 +121,48 @@ exactos, no.
 La conclusión práctica es el trabajo futuro más urgente: **anotar un conjunto real de tamaño
 razonable**. Es lo que separa este pipeline funcionando de un modelo utilizable.
 
+### ¿Y si el portal ya publica los atributos tabulados?
+
+Es la objeción más razonable que se le puede hacer a este trabajo, así que se midió en lugar de
+suponerla. Argenprop **sí** expone en cada página de detalle una ficha estructurada: 38 items
+tildados y 20 pares clave-valor (`Cant. Dormitorios: 3`, `Orientación: NE`, `Tipo de Balcón:
+Corrido`). Si esa ficha estuviera siempre completa, hacer NER sobre la descripción sería
+reinventar algo que ya existe.
+
+Se comparó, sobre una muestra de avisos, qué amenities aparecen en la ficha y cuáles en la
+descripción, usando el mismo vocabulario para las dos fuentes (`scripts/medir_cobertura.py`):
+
+| | |
+|---|---|
+| Amenities tildados en la ficha | 31 |
+| Amenities mencionados en la descripción | 36 |
+| **Sólo en la descripción** (se perderían usando únicamente la ficha) | **18** |
+| **Sólo en la ficha** (no se mencionan en el texto) | **13** |
+| Avisos donde la descripción aporta algo que la ficha no tiene | **50%** |
+
+**Las dos fuentes son complementarias, no redundantes.** Ninguna contiene a la otra, porque la
+ficha la completa el publicador y cada uno completa distinto. Los dos extremos de la muestra lo
+muestran bien: un aviso tenía **9 amenities** que estaban escritos en el texto pero sin tildar en
+la ficha; otro tenía 6 tildados que la descripción nunca menciona. (`ascensor` es el caso típico
+del segundo grupo: se tilda siempre, se escribe casi nunca.)
+
+Además, dos argumentos que valen aunque la ficha estuviera perfecta:
+
+- **Costo de adquisición.** La ficha vive en la página de **detalle**: una request por aviso. La
+  descripción viene en el **listado**: 20 avisos por request. Para 15.000 avisos, 15.000 requests
+  contra 750 — exactamente lo que dispara los bloqueos.
+- **Granularidad.** La ficha dice `Pileta`. El texto dice `pileta climatizada`, `parrilla propia`,
+  `balcón aterrazado con vista al río`. Para un modelo de valuación esa diferencia puede ser
+  material.
+
+> **Cuánto pesa este resultado.** Se midieron **10 avisos** — la corrida se cortó por el
+> rate-limit del portal. El emparejamiento es por palabras clave, no semántico. Alcanza para
+> mostrar que las fuentes son complementarias, no para cuantificar la brecha con precisión.
+>
+> Y una acotación de alcance importante: **la clasificación de señales del vendedor no tiene
+> equivalente tabulado en ningún portal.** No existe un checkbox de «escucho ofertas» o «venta
+> urgente». Ahí la capa de NLP no compite con nada: es la única fuente.
+
 ### Reportes
 
 Todo está en [`reports/`](reports/):

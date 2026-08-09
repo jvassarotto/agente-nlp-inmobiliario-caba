@@ -1,0 +1,224 @@
+{
+  "resumen": {
+    "avisos_medidos": 10,
+    "avisos_sin_ficha_de_amenities": 0,
+    "pct_sin_ficha": 0.0,
+    "amenities_en_ficha": 31,
+    "amenities_en_descripcion": 36,
+    "amenities_SOLO_en_descripcion": 18,
+    "amenities_SOLO_en_ficha": 13,
+    "avisos_con_al_menos_un_amenity_solo_en_texto": 5,
+    "pct_avisos_con_perdida": 0.5,
+    "nota": "'Solo en descripcion' = amenities que se perderian si uno confiara unicamente en la ficha tabulada del portal. Es la medida de cuanto aporta la capa de NLP. 'Solo en ficha' es el caso inverso: el publicador lo tildo pero no lo escribio."
+  },
+  "detalle": [
+    {
+      "url": "https://www.argenprop.com/departamento-en-venta-en-palermo-chico-1-ambiente--20163564",
+      "tiene_ficha": true,
+      "en_ficha": [
+        "ascensor",
+        "balcon"
+      ],
+      "en_texto": [
+        "balcon",
+        "seguridad"
+      ],
+      "solo_en_texto": [
+        "seguridad"
+      ],
+      "solo_en_ficha": [
+        "ascensor"
+      ]
+    },
+    {
+      "url": "https://www.argenprop.com/departamento-en-venta-en-palermo-chico-3-ambientes--16138779",
+      "tiene_ficha": true,
+      "en_ficha": [
+        "ascensor",
+        "balcon",
+        "laundry"
+      ],
+      "en_texto": [
+        "ascensor",
+        "balcon",
+        "laundry"
+      ],
+      "solo_en_texto": [],
+      "solo_en_ficha": []
+    },
+    {
+      "url": "https://www.argenprop.com/departamento-en-venta-en-palermo-5-ambientes--20061229",
+      "tiene_ficha": true,
+      "en_ficha": [
+        "balcon",
+        "baulera",
+        "laundry",
+        "terraza"
+      ],
+      "en_texto": [
+        "balcon",
+        "baulera",
+        "cochera",
+        "laundry",
+        "terraza"
+      ],
+      "solo_en_texto": [
+        "cochera"
+      ],
+      "solo_en_ficha": []
+    },
+    {
+      "url": "https://www.argenprop.com/departamento-en-venta-en-palermo-hollywood-1-ambiente--19683558",
+      "tiene_ficha": true,
+      "en_ficha": [
+        "ascensor",
+        "laundry",
+        "parrilla",
+        "seguridad"
+      ],
+      "en_texto": [
+        "ascensor",
+        "balcon",
+        "parrilla",
+        "pileta",
+        "sum",
+        "terraza"
+      ],
+      "solo_en_texto": [
+        "balcon",
+        "pileta",
+        "sum",
+        "terraza"
+      ],
+      "solo_en_ficha": [
+        "laundry",
+        "seguridad"
+      ]
+    },
+    {
+      "url": "https://www.argenprop.com/departamento-en-venta-en-las-canitas-4-ambientes--19956301",
+      "tiene_ficha": true,
+      "en_ficha": [
+        "balcon",
+        "cochera",
+        "laundry",
+        "terraza"
+      ],
+      "en_texto": [
+        "balcon",
+        "cochera",
+        "gimnasio",
+        "laundry",
+        "parrilla",
+        "seguridad",
+        "terraza"
+      ],
+      "solo_en_texto": [
+        "gimnasio",
+        "parrilla",
+        "seguridad"
+      ],
+      "solo_en_ficha": []
+    },
+    {
+      "url": "https://www.argenprop.com/departamento-en-venta-en-botanico-3-ambientes--19596287",
+      "tiene_ficha": true,
+      "en_ficha": [
+        "ascensor"
+      ],
+      "en_texto": [],
+      "solo_en_texto": [],
+      "solo_en_ficha": [
+        "ascensor"
+      ]
+    },
+    {
+      "url": "https://www.argenprop.com/departamento-en-venta-en-palermo-2-ambientes--19261035",
+      "tiene_ficha": true,
+      "en_ficha": [
+        "ascensor"
+      ],
+      "en_texto": [
+        "balcon",
+        "cochera",
+        "gimnasio",
+        "laundry",
+        "parrilla",
+        "pileta",
+        "seguridad",
+        "solarium",
+        "sum"
+      ],
+      "solo_en_texto": [
+        "balcon",
+        "cochera",
+        "gimnasio",
+        "laundry",
+        "parrilla",
+        "pileta",
+        "seguridad",
+        "solarium",
+        "sum"
+      ],
+      "solo_en_ficha": [
+        "ascensor"
+      ]
+    },
+    {
+      "url": "https://www.argenprop.com/departamento-en-venta-en-palermo-2-ambientes--20001930",
+      "tiene_ficha": true,
+      "en_ficha": [
+        "ascensor",
+        "seguridad"
+      ],
+      "en_texto": [
+        "seguridad"
+      ],
+      "solo_en_texto": [],
+      "solo_en_ficha": [
+        "ascensor"
+      ]
+    },
+    {
+      "url": "https://www.argenprop.com/departamento-en-venta-en-las-canitas-3-ambientes--15543042",
+      "tiene_ficha": true,
+      "en_ficha": [
+        "ascensor",
+        "cochera",
+        "laundry",
+        "parrilla",
+        "solarium",
+        "sum"
+      ],
+      "en_texto": [],
+      "solo_en_texto": [],
+      "solo_en_ficha": [
+        "ascensor",
+        "cochera",
+        "laundry",
+        "parrilla",
+        "solarium",
+        "sum"
+      ]
+    },
+    {
+      "url": "https://www.argenprop.com/departamento-en-venta-en-botanico-4-ambientes--19718486",
+      "tiene_ficha": true,
+      "en_ficha": [
+        "ascensor",
+        "balcon",
+        "baulera",
+        "laundry"
+      ],
+      "en_texto": [
+        "balcon",
+        "baulera",
+        "laundry"
+      ],
+      "solo_en_texto": [],
+      "solo_en_ficha": [
+        "ascensor"
+      ]
+    }
+  ]
+}

@@ -328,7 +328,28 @@ def construir(res: dict) -> Presentation:
               "recuperan por regex sobre el texto plano; sólo se pierde la descripción, que "
               "necesita algún gancho de markup. Un scraper de un solo nivel habría caído a 0%."])
 
-    # 9. Limitaciones
+    # 9. La objecion mas razonable, medida en vez de supuesta
+    cob = _json("reports/cobertura_tabulada.json")
+    r = (cob or {}).get("resumen", {})
+    placa(prs, "«¿Y si el portal ya publica los atributos?»",
+          [f"Argenprop SÍ expone una ficha estructurada en cada página de detalle: 38 items "
+           f"tildados y 20 pares clave-valor. La objeción es válida, así que se midió.",
+           "",
+           f"Sobre una muestra de {r.get('avisos_medidos', '—')} avisos, comparando ambas fuentes "
+           f"con el mismo vocabulario:",
+           f"      • Amenities tildados en la ficha:            {r.get('amenities_en_ficha', '—')}",
+           f"      • Amenities mencionados en la descripción:   {r.get('amenities_en_descripcion', '—')}",
+           f"      • SÓLO en la descripción (se perderían):     {r.get('amenities_SOLO_en_descripcion', '—')}",
+           f"      • SÓLO en la ficha:                          {r.get('amenities_SOLO_en_ficha', '—')}",
+           "",
+           "LAS DOS FUENTES SON COMPLEMENTARIAS, NO REDUNDANTES. Ninguna contiene a la otra: "
+           "la ficha la completa el publicador, y cada uno completa distinto.",
+           "",
+           "Y las señales del vendedor —«escucho ofertas», «venta urgente»— no tienen equivalente "
+           "tabulado en ningún portal. Ahí el NLP no compite con nada."],
+          size=15, bajada="La objeción más razonable al trabajo, respondida con datos")
+
+    # 10. Limitaciones
     placa(prs, "Limitaciones",
           ["•  Volumen del scrape. La propuesta apuntaba a 8.000–15.000 avisos; se trabajó "
            "con un volumen mucho menor. El anti-bot del portal (DataDome/Cloudflare) y el "
