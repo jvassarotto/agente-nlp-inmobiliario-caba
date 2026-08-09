@@ -87,7 +87,43 @@ def mostrar(rec: dict, i: int, total: int, ents: list[dict],
     else:
         print("     (ninguna)")
 
+    sugerir_faltantes(texto, ents)
+
     print(f"\n  SENALES propuestas: {', '.join(rec.get('signals', [])) or '(ninguna)'}")
+
+
+def sugerir_faltantes(texto: str, ents: list[dict]) -> None:
+    """Marca frases del vocabulario de entrenamiento que el LLM no etiqueto.
+
+    El vocabulario sale del generador sintetico a proposito: es EL MISMO
+    criterio con el que se entreno el modelo. Si el revisor etiquetara con un
+    criterio distinto, estaria penalizando al modelo por algo que nunca se le
+    enseño.
+
+    Son SUGERENCIAS: el revisor decide. Puede haber falsos positivos (por
+    ejemplo "terraza" dentro de "terraza del edificio de al lado").
+    """
+    from src.data.generate_synthetic import AMENITIES, ESTADOS, ORIENTACIONES
+
+    vocabulario = ([(" ".join(f), "AMENITY") for f in AMENITIES]
+                   + [(" ".join(f), "ESTADO") for f in ESTADOS]
+                   + [(" ".join(f), "ORIENTACION") for f in ORIENTACIONES])
+
+    bajo = texto.lower()
+    ya_marcado = " ".join(e["text"].lower() for e in ents)
+
+    # Frases mas largas primero: si esta "balcon corrido", no sugerir "balcon".
+    encontradas: list[tuple[str, str]] = []
+    for frase, tipo in sorted(vocabulario, key=lambda x: -len(x[0])):
+        f = frase.lower()
+        if f in bajo and f not in ya_marcado and not any(f in otra for otra, _ in encontradas):
+            encontradas.append((frase, tipo))
+
+    if encontradas:
+        print("\n  SUGERENCIAS — aparecen en el texto y NO estan marcadas:")
+        for frase, tipo in encontradas:
+            print(f"    {tipo:12s} -> {frase}")
+        print("    (copialas en 'agregar' si corresponden; puede haber falsos positivos)")
 
 
 # --------------------------------------------------------------------------
